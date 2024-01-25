@@ -1,0 +1,45 @@
+name: Electron Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest]
+        node_version: ['18']
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          clean: false  # Do not remove untracked files
+
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: install, build
+        run: |
+          npm i
+          npx electron-rebuild -f -w better-sqlit3
+          npm run build:win
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

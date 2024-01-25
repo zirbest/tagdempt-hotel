@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: ['18']
+        os: [windows-latest,ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: install, build
+        run: |
+          npm i
+          npx electron-rebuild -f -w better-sqlit3
+          npm run build
