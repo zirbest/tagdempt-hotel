@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '~/components/ui/button'
 import Header from '~/components/Header'
+import { Switch, SwitchControl, SwitchInput, SwitchLabel, SwitchThumb } from '@/components/ui/switch'
 
 export function InvoicesData({ location }: RouteDataFuncArgs) {
   const fetcher = async ([search]) => await window.electron.ipcRenderer.invoke('invoices-read', search)
@@ -69,6 +70,7 @@ function Invoices() {
               <TableHead class="text-right">Montant</TableHead>
               <TableHead class="text-right">Date Paiment</TableHead>
               <TableHead class="text-right">Genre de Paiement</TableHead>
+              <TableHead class="text-right">Etat Paiement</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -93,6 +95,9 @@ function Invoices() {
                   </TableCell>
                   <TableCell class="text-right">
                     { it.paymentType }
+                  </TableCell>
+                  <TableCell class="text-right">
+                    { it.paymentStatus }
                   </TableCell>
                 </TableRow>
               ) }
@@ -141,6 +146,23 @@ function Invoices() {
               value={invoice?.paymentType || ''}
               onInput={e => setInvoice('paymentType', e.target.value)}
             />
+            <div>
+              <Switch
+                class="flex gap-4 items-center"
+                checked={invoice?.paymentStatus === 'paid'}
+                value={invoice?.paymentStatus}
+                onChange={e => setInvoice('paymentStatus', e ? 'paid' : 'unpaid')}
+              >
+                <SwitchLabel class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Airplane Mode
+                </SwitchLabel>
+                <SwitchInput />
+                <SwitchControl>
+                  <SwitchThumb />
+                </SwitchControl>
+              </Switch>
+            </div>
+
           </SheetHeader>
           <SheetFooter>
             <Button

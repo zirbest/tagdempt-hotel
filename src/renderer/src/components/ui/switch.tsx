@@ -1,43 +1,41 @@
-import type { Component } from "solid-js"
-import { Show, splitProps } from "solid-js"
-
-import { Switch as SwitchPrimitive } from "@kobalte/core"
-
 import { cn } from "~/lib/utils"
+import { Switch as SwitchPrimitive } from "@kobalte/core"
+import { splitProps, type ParentComponent } from "solid-js"
 
-interface SwitchProps extends SwitchPrimitive.SwitchRootProps {
-  label?: string
-  errorMessage?: string
+export const SwitchLabel = SwitchPrimitive.Label
+export const SwitchInput = SwitchPrimitive.Input
+export const Switch = SwitchPrimitive.Root
+export const SwitchErrorMessage = SwitchPrimitive.ErrorMessage
+export const SwitchDescription = SwitchPrimitive.Description
+
+export const SwitchControl: ParentComponent<
+	SwitchPrimitive.SwitchControlProps
+> = (props) => {
+	const [local, rest] = splitProps(props, ["class"])
+
+	return (
+		<SwitchPrimitive.Control
+			class={cn(
+				"inline-flex h-[20px] w-[36px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[checked]:bg-primary bg-input",
+				local.class
+			)}
+			{...rest}
+		/>
+	)
 }
 
-const Switch: Component<SwitchProps> = (props) => {
-  const [, rest] = splitProps(props, ["label"])
-  return (
-    <SwitchPrimitive.Root {...rest}>
-      <SwitchPrimitive.Input />
-      <div class="items-top flex space-x-2">
-        <SwitchPrimitive.Control class="bg-input focus-visible:ring-ring focus-visible:ring-offset-background data-[checked]:bg-primary peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-          <SwitchPrimitive.Thumb
-            class={cn(
-              "bg-background pointer-events-none block h-5 w-5 translate-x-0 rounded-full shadow-lg ring-0 transition-transform data-[checked]:translate-x-5"
-            )}
-          />
-        </SwitchPrimitive.Control>
-        <div class="grid gap-1.5 leading-none">
-          <Show when={props.label}>
-            <SwitchPrimitive.Label class="text-sm font-medium leading-none group-data-[disabled]:cursor-not-allowed group-data-[disabled]:opacity-70">
-              {props.label}
-            </SwitchPrimitive.Label>
-          </Show>
-          <Show when={props.errorMessage}>
-            <SwitchPrimitive.ErrorMessage class="text-destructive text-sm">
-              {props.errorMessage}
-            </SwitchPrimitive.ErrorMessage>
-          </Show>
-        </div>
-      </div>
-    </SwitchPrimitive.Root>
-  )
-}
+export const SwitchThumb: ParentComponent<SwitchPrimitive.SwitchThumbProps> = (
+	props
+) => {
+	const [local, rest] = splitProps(props, ["class"])
 
-export { Switch }
+	return (
+		<SwitchPrimitive.Thumb
+			class={cn(
+				"pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform data-[checked]:translate-x-4 translate-x-0",
+				local.class
+			)}
+			{...rest}
+		/>
+	)
+}
