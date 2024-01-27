@@ -30,10 +30,10 @@ function prouctFaker(items = 10) {
       date: format(faker.date.past(), 'yyyy-dd-MM').toString(),
       amount: faker.number.float({ min: 10, max: 100, precision: 0.001 }),
       paymentStatus: 'unpaid',
-      paymentDate: format(faker.date.past(), 'yyyy-dd-MM').toString(),
+      paymentDate: format(faker.date.past(), 'yyyy-MM-dd').toString(),
       paymentType: 'cash',
 
-      updatedAt: format(faker.date.past(), 'yyyy-dd-MM HH:mm:ss').toString(),
+      updatedAt: format(faker.date.past(), 'yyyy-MM-dd HH:mm:ss').toString(),
     },
     )
     i++
