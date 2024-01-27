@@ -10,7 +10,7 @@ const dbFolder = app?.isPackaged
   : '.'
 const client = new Database(`${dbFolder}/drizzle.db`)
 // const client = new Database(':memory:');
-export const db = drizzle(client, { schema, logger: true })
+export const db = drizzle(client, { schema, logger: !app?.isPackaged })
 
 export async function dbMigration() {
   const migrationsFolder = app?.isPackaged

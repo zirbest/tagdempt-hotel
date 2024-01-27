@@ -64,10 +64,11 @@ function Invoices() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Client</TableHead>
               <TableHead>N</TableHead>
               <TableHead class="text-right">Date</TableHead>
               <TableHead class="text-right">Montant</TableHead>
+              <TableHead class="text-right">Date Paiment</TableHead>
+              <TableHead class="text-right">Genre de Paiement</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -79,9 +80,6 @@ function Invoices() {
                 }}
                 >
                   <TableCell class="tabular-nums">
-                    { it.customer }
-                  </TableCell>
-                  <TableCell>
                     { it.number }
                   </TableCell>
                   <TableCell class="text-right font-medium tabular-nums">
@@ -89,6 +87,12 @@ function Invoices() {
                   </TableCell>
                   <TableCell class="text-right tabular-nums">
                     { it.amount }
+                  </TableCell>
+                  <TableCell class="text-right tabular-nums">
+                    { it.paymentDate }
+                  </TableCell>
+                  <TableCell class="text-right">
+                    { it.paymentType }
                   </TableCell>
                 </TableRow>
               ) }
@@ -109,12 +113,6 @@ function Invoices() {
 
             <Input
               type="text"
-              placeholder="Client"
-              value={invoice?.customer || ''}
-              onInput={e => setInvoice('customer', e.target.value)}
-            />
-            <Input
-              type="text"
               placeholder="N"
               value={invoice?.number || ''}
               onInput={e => setInvoice('number', e.target.value)}
@@ -131,7 +129,18 @@ function Invoices() {
               value={invoice?.amount || ''}
               onInput={e => setInvoice('amount', e.target.value)}
             />
-
+            <Input
+              type="date"
+              placeholder="Date Paiment"
+              value={invoice?.paymentDate || ''}
+              onInput={e => setInvoice('paymentDate', e.target.value)}
+            />
+            <Input
+              type="text"
+              placeholder="Genre de Paiment"
+              value={invoice?.paymentType || ''}
+              onInput={e => setInvoice('paymentType', e.target.value)}
+            />
           </SheetHeader>
           <SheetFooter>
             <Button

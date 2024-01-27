@@ -8,6 +8,7 @@
     "electron.vite.config.*",
     "src/main/*",
     "src/preload/*",
-    "src/main/db/*"
+    "src/main/db/*",
+    "src/main/lib/*"
   ]
 }

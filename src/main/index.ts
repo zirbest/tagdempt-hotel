@@ -101,8 +101,8 @@ ipcMain.handle('invoices-read', async (_, search) => {
   const result = db.query.invoices.findMany({
     where(fields, { like, or }) {
       return or(
-        like(fields.customer, `%${search}%`),
-        eq(fields.id, search),
+        like(fields.number, `%${search}%`),
+        like(fields.date, `%${search}%`),
       )
     },
   })

@@ -21,6 +21,7 @@
     "build:linux": "electron-vite build && electron-builder --linux --config",
     "db:push": "drizzle-kit push:sqlite",
     "db:studio": "drizzle-kit studio",
+    "db:gen": "drizzle-kit generate:sqlite",
     "db:seed": "npx tsx src/main/db/seed.ts"
   },
   "dependencies": {

@@ -26,10 +26,13 @@ function prouctFaker(items = 10) {
   let i = 0
   while (i < items) {
     invoices.push({
-      customer: faker.person.fullName(),
       number: faker.number.int({ min: 1, max: 999 }),
       date: format(faker.date.past(), 'yyyy-dd-MM').toString(),
       amount: faker.number.float({ min: 10, max: 100, precision: 0.001 }),
+      paymentStatus: 'unpaid',
+      paymentDate: format(faker.date.past(), 'yyyy-dd-MM').toString(),
+      paymentType: 'cash',
+
       updatedAt: format(faker.date.past(), 'yyyy-dd-MM HH:mm:ss').toString(),
     },
     )

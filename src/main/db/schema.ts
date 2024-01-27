@@ -18,10 +18,12 @@ export const users = sqliteTable('users', {
 
 export const invoices = sqliteTable('invoices', {
   id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
-  customer: text('customer').notNull(),
   number: integer('number').notNull(),
   date: numeric('date').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
   amount: real('amount').notNull(),
+  paymentStatus: text('payment_status', { enum: ['paid', 'unpaid'] }).notNull().default('unpaid'),
+  paymentDate: numeric('payment_date').notNull(),
+  paymentType: text('payment_type').notNull(),
 
   createdAt: numeric('created_at').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
   updatedAt: numeric('updated_at').notNull(),
