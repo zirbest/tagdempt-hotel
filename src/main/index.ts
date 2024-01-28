@@ -1,7 +1,7 @@
 import { join } from 'path'
 import { BrowserWindow, app, ipcMain, shell } from 'electron'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { and, eq, sql } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import icon from '../../resources/icon.png?asset'
 import { db } from './db'
 import type { Auth } from './db/schema'
@@ -108,6 +108,7 @@ ipcMain.handle('invoices-read', async (_, search) => {
         !search.ps ? undefined : eq(fields.paymentStatus, search.ps),
       )
     },
+    orderBy: [desc(invoices.id)],
   })
   return result
 })
