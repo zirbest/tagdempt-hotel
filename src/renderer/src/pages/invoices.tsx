@@ -109,7 +109,10 @@ function Invoices() {
       <Sheet open={isSheetOpen()} onOpenChange={setIsSheetOpen}>
         <SheetContent size="content">
           <SheetHeader>
-            <SheetTitle>Ajouter une Creance</SheetTitle>
+            <SheetTitle>
+              { invoice.id ? 'mise à jour' : 'creer' }
+              &nbspune Creance
+            </SheetTitle>
             {/* <SheetDescription> */}
             {/* </SheetDescription> */}
             {/* <pre> */}
@@ -148,13 +151,13 @@ function Invoices() {
             />
             <div>
               <Switch
-                class="flex gap-4 items-center"
+                class="flex gap-4 items-center justify-between"
                 checked={invoice?.paymentStatus === 'paid'}
                 value={invoice?.paymentStatus}
                 onChange={e => setInvoice('paymentStatus', e ? 'paid' : 'unpaid')}
               >
-                <SwitchLabel class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Airplane Mode
+                <SwitchLabel class="flex-auto text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Etat Paiement
                 </SwitchLabel>
                 <SwitchInput />
                 <SwitchControl>
