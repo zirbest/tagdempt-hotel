@@ -6,7 +6,7 @@ import icon from '../../resources/icon.png?asset'
 import { db } from './db'
 import type { Auth } from './db/schema'
 import { invoices, users } from './db/schema'
-import { appInit } from './lib/utils'
+import { appInit, searchStrToObj } from './lib/utils'
 
 function createWindow(): void {
   // Create the browser window.
@@ -78,15 +78,15 @@ let auth: Auth | null = null
 
 appInit()
 
-ipcMain.handle('invoice-create', async (_, productReq) => {
+ipcMain.handle('invoice-create', async (_, req) => {
   return await db.insert(invoices).values({
-    ...productReq,
+    ...req,
     updatedAt: sql`CURRENT_TIMESTAMP`,
   })
 })
 
-ipcMain.handle('invoice-update', async (_, productReq) => {
-  const { id, ...rest } = productReq
+ipcMain.handle('invoice-update', async (_, req) => {
+  const { id, ...rest } = req
 
   return await db.update(invoices).set({
     ...rest,
@@ -96,13 +96,16 @@ ipcMain.handle('invoice-update', async (_, productReq) => {
 })
 
 ipcMain.handle('invoices-read', async (_, search) => {
-  search ??= ''
+  search = searchStrToObj(search)
 
   const result = db.query.invoices.findMany({
-    where(fields, { like, or }) {
-      return or(
-        like(fields.number, `%${search}%`),
-        like(fields.date, `%${search}%`),
+    where(fields, { like, and }) {
+      return and(
+        !search.q ? undefined : like(fields.number, `%${search.q}%`),
+        !search.d ? undefined : like(fields.date, `%${search.d}%`),
+        !search.m ? undefined : like(fields.amount, `%${search.m}%`),
+        !search.dp ? undefined : like(fields.paymentDate, `%${search.dp}%`),
+        !search.ps ? undefined : eq(fields.paymentStatus, search.ps),
       )
     },
   })
