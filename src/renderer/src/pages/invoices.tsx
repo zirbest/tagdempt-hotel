@@ -22,6 +22,7 @@ import {
 import { Button } from '~/components/ui/button'
 import Header from '~/components/Header'
 import { Switch, SwitchControl, SwitchInput, SwitchLabel, SwitchThumb } from '@/components/ui/switch'
+import { Badge } from '~/components/ui/badge'
 
 export function InvoicesData({ location }: RouteDataFuncArgs) {
   const fetcher = async ([search]) => await window.electron.ipcRenderer.invoke('invoices-read', search)
@@ -70,7 +71,7 @@ function Invoices() {
               <TableHead class="text-right">Montant</TableHead>
               <TableHead class="text-right">Date Paiment</TableHead>
               <TableHead class="text-right">Genre de Paiement</TableHead>
-              <TableHead class="text-right">Etat Paiement</TableHead>
+              <TableHead class="">Etat Paiement</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -96,8 +97,13 @@ function Invoices() {
                   <TableCell class="text-right">
                     { it.paymentType }
                   </TableCell>
-                  <TableCell class="text-right">
-                    { it.paymentStatus }
+                  <TableCell class="">
+                    <Badge
+                      variant="secondary"
+                      class={it.paymentStatus === 'unpaid' ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'}
+                    >
+                      { it.paymentStatus === 'paid' ? 'paye' : 'non paye' }
+                    </Badge>
                   </TableCell>
                 </TableRow>
               ) }
