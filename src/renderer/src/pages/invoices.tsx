@@ -67,11 +67,11 @@ function Invoices() {
           <TableHeader>
             <TableRow>
               <TableHead>N</TableHead>
-              <TableHead class="text-right">Date</TableHead>
+              <TableHead>Date</TableHead>
               <TableHead class="text-right">Montant</TableHead>
-              <TableHead class="text-right">Date Paiment</TableHead>
-              <TableHead class="text-right">Genre de Paiement</TableHead>
-              <TableHead class="">Etat Paiement</TableHead>
+              <TableHead class="text-center">Date Paiment</TableHead>
+              <TableHead class="text-center">Genre de Paiement</TableHead>
+              <TableHead class="text-center">Etat Paiement</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -85,19 +85,19 @@ function Invoices() {
                   <TableCell class="tabular-nums">
                     { it.number }
                   </TableCell>
-                  <TableCell class="text-right font-medium tabular-nums">
+                  <TableCell class="font-medium tabular-nums">
                     { it.date }
                   </TableCell>
                   <TableCell class="text-right tabular-nums">
                     { it.amount }
                   </TableCell>
-                  <TableCell class="text-right tabular-nums">
+                  <TableCell class="text-center tabular-nums">
                     { it.paymentDate }
                   </TableCell>
-                  <TableCell class="text-right">
+                  <TableCell class="text-center">
                     { it.paymentType }
                   </TableCell>
-                  <TableCell class="">
+                  <TableCell class="text-center">
                     <Badge
                       variant="secondary"
                       class={it.paymentStatus === 'unpaid' ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'}
