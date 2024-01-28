@@ -1,6 +1,5 @@
-import type { RouteDataFuncArgs } from '@solidjs/router'
-import { useRouteData } from '@solidjs/router'
-import { For, createResource, createSignal } from 'solid-js'
+import { cache, createAsync, revalidate } from '@solidjs/router'
+import { For, createSignal } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
 import type { Invoice } from 'src/main/db/schema'
 import {
@@ -24,18 +23,16 @@ import Header from '~/components/Header'
 import { Switch, SwitchControl, SwitchInput, SwitchLabel, SwitchThumb } from '@/components/ui/switch'
 import { Badge } from '~/components/ui/badge'
 
-export function InvoicesData({ location }: RouteDataFuncArgs) {
-  const fetcher = async ([search]) => await window.electron.ipcRenderer.invoke('invoices-read', search)
+const getInvoice = cache(async (search) => {
+  return await window.electron.ipcRenderer.invoke('invoices-read', search)
+}, 'invoices')
 
-  return createResource<Invoice[]>(
-    // @ts-expect-error any
-    () => ([location.query.search] as const),
-    fetcher,
-  )
-};
+export function loadInvoice({ location }) {
+  void getInvoice(location.query.search)
+}
 
-function Invoices() {
-  const [invoices, { refetch }] = useRouteData<typeof InvoicesData>()
+function Invoices(props) {
+  const invoices = createAsync<Invoice[]>(() => getInvoice(props.location.query.search))
   const [invoice, setInvoice] = createStore<any>()
   const [isSheetOpen, setIsSheetOpen] = createSignal(false)
 
@@ -181,7 +178,7 @@ function Invoices() {
                   ? window.electron.ipcRenderer.invoke('invoice-update', { ...invoice })
                   : window.electron.ipcRenderer.invoke('invoice-create', { ...invoice })
                 setInvoice(reconcile({}))
-                refetch()
+                revalidate(getInvoice.key)
               }}
             >
               { invoice.id ? 'mise à jour' : 'Enregistrer' }
