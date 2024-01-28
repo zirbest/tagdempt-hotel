@@ -121,7 +121,7 @@ ipcMain.handle('login', async (_, credential: { username: string, password: stri
     if (!user)
       return
 
-    const { password, ...rest } = user
+    const { password: _password, ...rest } = user
     auth = rest
   }
 
