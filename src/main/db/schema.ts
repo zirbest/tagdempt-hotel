@@ -1,5 +1,5 @@
 import { integer, numeric, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { sql } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 
 // import { init } from '@paralleldrive/cuid2'
 
@@ -28,6 +28,46 @@ export const invoices = sqliteTable('invoices', {
   createdAt: numeric('created_at').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
   updatedAt: numeric('updated_at').notNull(),
 })
+
+export const services = sqliteTable('services', {
+  id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+  name: text('name').unique().notNull(),
+  label: text('label').unique().notNull(),
+  description: text('description').notNull(),
+  enabled: integer('enabled').notNull().default(0),
+
+  // deletedAt: numeric('deleted_at').notNull(),
+  createdAt: numeric('created_at').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  updatedAt: numeric('updated_at').notNull(),
+})
+
+export const invoicesToServices = sqliteTable('invoices_to_services', {
+  invoiceId: integer('invoice_id').notNull().references(() => invoices.id),
+  serviceId: integer('service_id').notNull().references(() => services.id),
+
+  amount: real('amount').notNull(),
+  createdAt: numeric('created_at').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  updatedAt: numeric('updated_at').notNull(),
+})
+
+export const invoicesRelations = relations(invoices, ({ many }) => ({
+  invoicesToServices: many(invoicesToServices),
+}))
+
+export const servicesRelations = relations(services, ({ many }) => ({
+  invoicesToServices: many(invoicesToServices),
+}))
+
+export const invoicesToServicesRelations = relations(invoicesToServices, ({ one }) => ({
+  invoice: one(invoices, {
+    fields: [invoicesToServices.invoiceId],
+    references: [invoices.id],
+  }),
+  service: one(services, {
+    fields: [invoicesToServices.serviceId],
+    references: [services.id],
+  }),
+}))
 
 export type User = typeof users.$inferInsert
 export type Invoice = typeof invoices.$inferInsert
