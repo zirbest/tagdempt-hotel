@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: zirtech-pos
+productName: zirtech-tagdempt-hotel
 directories:
   buildResources: build
 files:
@@ -14,7 +14,7 @@ asarUnpack:
   - migration/**
 afterSign: build/notarize.js
 win:
-  executableName: zirtech-pos
+  executableName: zirtech-tagdempt-hotel
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
