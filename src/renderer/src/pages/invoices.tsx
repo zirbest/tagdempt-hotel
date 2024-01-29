@@ -1,7 +1,7 @@
 import { cache, createAsync, revalidate } from '@solidjs/router'
-import { For, createSignal } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
-import type { Invoice } from 'src/main/db/schema'
+import type { Invoice, Service } from 'src/main/db/schema'
 import {
   Table,
   TableBody,
@@ -31,8 +31,14 @@ export function loadInvoice({ location }) {
   void getInvoice(location.query.search)
 }
 
+const getServices = cache(async () => {
+  return await window.electron.ipcRenderer.invoke('services-read')
+}, 'invoices')
+
 function Invoices(props) {
   const invoices = createAsync<Invoice[]>(() => getInvoice(props.location.query.search))
+  const services = createAsync<Service[]>(() => getServices())
+
   const [invoice, setInvoice] = createStore<any>()
   const [isSheetOpen, setIsSheetOpen] = createSignal(false)
 
@@ -152,7 +158,7 @@ function Invoices(props) {
               value={invoice?.paymentType || ''}
               onInput={e => setInvoice('paymentType', e.target.value)}
             />
-            <div>
+            <div class="py-4">
               <Switch
                 class="flex gap-4 items-center justify-between"
                 checked={invoice?.paymentStatus === 'paid'}
@@ -169,14 +175,44 @@ function Invoices(props) {
               </Switch>
             </div>
 
+            <Show when={services()}>
+              <For each={services()}>
+                { it => (
+                  <Input
+                    type="text"
+                    placeholder={it.label}
+                    value={
+                      invoice?.invoicesToServices
+                        ?.find(invToServ => invToServ.serviceId === it.id)
+                        ?.amount || ''
+                    }
+                    onInput={(e) => {
+                      const index = invoice?.invoicesToServices
+                        ?.findIndex(invToServ => invToServ.serviceId === it.id)
+
+                      // TODO: simplify it
+                      index !== -1 && invoice?.invoicesToServices
+                        ? invoice?.invoicesToServices && setInvoice('invoicesToServices', index, 'amount', e.target.value)
+                        : setInvoice('invoicesToServices', [
+                          ...invoice?.invoicesToServices ? invoice?.invoicesToServices : [],
+                          {
+                            amount: e.target.value,
+                            serviceId: it.id,
+                          },
+                        ])
+                    }}
+                  />
+                )}
+              </For>
+            </Show>
           </SheetHeader>
           <SheetFooter>
             <Button
               class="mt-4 max-w-[8rem] ml-auto"
               onClick={() => {
                 invoice.id
-                  ? window.electron.ipcRenderer.invoke('invoice-update', { ...invoice })
-                  : window.electron.ipcRenderer.invoke('invoice-create', { ...invoice })
+                  ? window.electron.ipcRenderer.invoke('invoice-update', JSON.stringify(invoice))
+                  : window.electron.ipcRenderer.invoke('invoice-create', JSON.stringify(invoice))
                 setInvoice(reconcile({}))
                 revalidate(getInvoice.key)
               }}

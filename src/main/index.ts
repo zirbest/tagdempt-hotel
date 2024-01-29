@@ -4,8 +4,8 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import icon from '../../resources/icon.png?asset'
 import { db } from './db'
-import type { Auth } from './db/schema'
-import { invoices, users } from './db/schema'
+import type { Auth, invoiceToServices } from './db/schema'
+import { invoices, invoicesToServices, users } from './db/schema'
 import { appInit, searchStrToObj } from './lib/utils'
 
 function createWindow(): void {
@@ -79,20 +79,52 @@ let auth: Auth | null = null
 appInit()
 
 ipcMain.handle('invoice-create', async (_, req) => {
-  return await db.insert(invoices).values({
-    ...req,
+  const { invoicesToServices: invoicesToServicesReq, ...invoiceReq } = JSON.parse(req)
+
+  const res = await db.insert(invoices).values({
+    ...invoiceReq,
     updatedAt: sql`CURRENT_TIMESTAMP`,
   })
+
+  for (const it of invoicesToServicesReq) {
+    await db.insert(invoicesToServices).values({
+      ...it,
+      invoiceId: res.lastInsertRowid,
+      updatedAt: sql`CURRENT_TIMESTAMP`,
+    })
+  }
+
+  return res
 })
 
 ipcMain.handle('invoice-update', async (_, req) => {
-  const { id, ...rest } = req
+  const { id, invoicesToServices: invoicesToServicesReq, ...invoiceReq } = JSON.parse(req)
 
-  return await db.update(invoices).set({
-    ...rest,
+  const res = await db.update(invoices).set({
+    ...invoiceReq,
     updatedAt: sql`CURRENT_TIMESTAMP`,
   },
   ).where(eq(invoices.id, id))
+
+  for (const it of invoicesToServicesReq as invoiceToServices[]) {
+    it.id
+      ? await db.update(invoicesToServices).set({
+        amount: it.amount,
+        updatedAt: sql`CURRENT_TIMESTAMP`,
+      },
+      ).where(and(
+        eq(invoicesToServices.invoiceId, it.invoiceId),
+        eq(invoicesToServices.serviceId, it.serviceId),
+      ))
+
+      : await db.insert(invoicesToServices).values({
+        ...it,
+        invoiceId: id,
+        updatedAt: sql`CURRENT_TIMESTAMP`,
+      })
+  }
+
+  return res
 })
 
 ipcMain.handle('invoices-read', async (_, search) => {
@@ -108,8 +140,20 @@ ipcMain.handle('invoices-read', async (_, search) => {
         !search.ps ? undefined : eq(fields.paymentStatus, search.ps),
       )
     },
+    with: {
+      invoicesToServices: {
+        with: {
+          service: true,
+        },
+      },
+    },
     orderBy: [desc(invoices.id)],
   })
+  return result
+})
+
+ipcMain.handle('services-read', async (_) => {
+  const result = db.query.services.findMany()
   return result
 })
 
@@ -129,10 +173,24 @@ ipcMain.handle('login', async (_, credential: { username: string, password: stri
     auth = rest
   }
 
-  console.log('auth: ', auth)
   return auth
 })
 
 ipcMain.handle('logout', async (_) => {
   auth = null
+})
+
+ipcMain.handle('test', async (_, search) => {
+  // search = searchStrToObj(search)
+
+  const result = db.query.invoices.findMany({
+    with: {
+      invoicesToServices: {
+        with: {
+          service: true,
+        },
+      },
+    },
+  })
+  return result
 })

@@ -71,5 +71,7 @@ export const invoicesToServicesRelations = relations(invoicesToServices, ({ one 
 
 export type User = typeof users.$inferInsert
 export type Invoice = typeof invoices.$inferInsert
+export type Service = typeof services.$inferInsert
+export type invoiceToServices = typeof invoicesToServices.$inferInsert
 
 export type Auth = Omit<typeof users.$inferSelect, 'password'>
