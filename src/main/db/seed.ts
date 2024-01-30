@@ -1,8 +1,8 @@
 import { exec } from 'child_process'
 import { fakerFR as faker } from '@faker-js/faker'
 import { format } from 'date-fns'
-import type { Invoice, User } from './schema'
-import { invoices, users } from './schema'
+import type { Invoice, Service, User } from './schema'
+import { invoices, services, users } from './schema'
 import { db } from '.'
 
 function userFaker() {
@@ -20,7 +20,7 @@ function userFaker() {
   ] as User[]
 }
 
-function prouctFaker(items = 10) {
+function invoiceFaker(items = 10) {
   const invoices: Invoice[] = []
 
   let i = 0
@@ -42,7 +42,25 @@ function prouctFaker(items = 10) {
   return invoices
 }
 
-console.log(prouctFaker())
+function serviceFaker(items = 4) {
+  const services: Service[] = []
+
+  let i = 0
+  while (i < items) {
+    services.push({
+      name: faker.word.sample(),
+      label: faker.word.sample(),
+      description: faker.word.words(),
+
+      updatedAt: format(faker.date.past(), 'yyyy-MM-dd HH:mm:ss').toString(),
+    })
+    i++
+  }
+
+  return services
+}
+
+console.log(invoiceFaker())
 
 async function seeds() {
   beforSeed()
@@ -57,11 +75,19 @@ async function seeds() {
 
   await db
     .insert(invoices)
-    .values(prouctFaker())
+    .values(invoiceFaker())
     .onConflictDoNothing()
     .returning()
 
   console.log('invoices table is seeded 🎉️')
+
+  await db
+    .insert(services)
+    .values(serviceFaker())
+    .onConflictDoNothing()
+    .returning()
+
+  console.log('services table is seeded 🎉️')
 }
 seeds()
 
