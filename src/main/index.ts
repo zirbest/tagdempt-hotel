@@ -107,7 +107,7 @@ ipcMain.handle('invoice-update', async (_, req) => {
   ).where(eq(invoices.id, id))
 
   for (const it of invoicesToServicesReq as invoiceToServices[]) {
-    it.id
+    it.invoiceId
       ? await db.update(invoicesToServices).set({
         amount: it.amount,
         updatedAt: sql`CURRENT_TIMESTAMP`,
