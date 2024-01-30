@@ -107,6 +107,13 @@ ipcMain.handle('invoice-update', async (_, req) => {
   ).where(eq(invoices.id, id))
 
   for (const it of invoicesToServicesReq as invoiceToServices[]) {
+    !it.amount
+    && await db.delete(invoicesToServices)
+      .where(and(
+        eq(invoicesToServices.invoiceId, it.invoiceId),
+        eq(invoicesToServices.serviceId, it.serviceId),
+      ))
+
     it.invoiceId
       ? await db.update(invoicesToServices).set({
         amount: it.amount,
