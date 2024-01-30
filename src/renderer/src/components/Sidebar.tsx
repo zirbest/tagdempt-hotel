@@ -2,6 +2,7 @@ import { createSignal } from 'solid-js'
 import { A, useNavigate } from '@solidjs/router'
 import { cn } from '@/lib/utils'
 import MingcuteDocument2Fill from '~icons/mingcute/document-2-fill'
+import MingcuteDocumentsFill from '~icons/mingcute/documents-fill'
 
 import {
   DropdownMenu,
@@ -42,7 +43,11 @@ export default function Sidebar(props) {
             <div class="space-y-1">
               <NavLink href="/">
                 <MingcuteDocument2Fill class="mr-2 h-4 w-4" />
-                Creance
+                Creances
+              </NavLink>
+              <NavLink href="/services">
+                <MingcuteDocumentsFill class="mr-2 h-4 w-4" />
+                Services
               </NavLink>
             </div>
           </div>

@@ -5,7 +5,7 @@ import { and, desc, eq, sql } from 'drizzle-orm'
 import icon from '../../resources/icon.png?asset'
 import { db } from './db'
 import type { Auth, invoiceToServices } from './db/schema'
-import { invoices, invoicesToServices, users } from './db/schema'
+import { invoices, invoicesToServices, services, users } from './db/schema'
 import { appInit, searchStrToObj } from './lib/utils'
 
 function createWindow(): void {
@@ -77,6 +77,8 @@ app.on('window-all-closed', () => {
 let auth: Auth | null = null
 
 appInit()
+
+// #### Invoices {{{
 
 ipcMain.handle('invoice-create', async (_, req) => {
   const { invoicesToServices: invoicesToServicesReq, ...invoiceReq } = JSON.parse(req)
@@ -159,10 +161,48 @@ ipcMain.handle('invoices-read', async (_, search) => {
   return result
 })
 
-ipcMain.handle('services-read', async (_) => {
-  const result = db.query.services.findMany()
+// }}}
+
+// #### Services {{{
+
+ipcMain.handle('service-create', async (_, req) => {
+  const serviceReq = JSON.parse(req)
+
+  const res = await db.insert(services).values({
+    ...serviceReq,
+    updatedAt: sql`CURRENT_TIMESTAMP`,
+  })
+
+  return res
+})
+
+ipcMain.handle('services-read', async (_, search) => {
+  search = searchStrToObj(search)
+
+  const result = db.query.services.findMany({
+    where(fields, { like, and }) {
+      return and(
+        !search.q ? undefined : like(fields.name, `%${search.q}%`),
+      )
+    },
+    orderBy: [desc(services.id)],
+  })
   return result
 })
+
+ipcMain.handle('service-update', async (_, req) => {
+  const { id, ...serviceReq } = JSON.parse(req)
+
+  const res = await db.update(services).set({
+    ...serviceReq,
+    updatedAt: sql`CURRENT_TIMESTAMP`,
+  },
+  ).where(eq(services.id, id))
+
+  return res
+})
+
+// }}}
 
 ipcMain.handle('login', async (_, credential: { username: string, password: string }) => {
   if (!auth && credential?.username && credential?.password) {
