@@ -14,6 +14,7 @@ import { Input } from '~/components/ui/input'
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -116,18 +117,18 @@ function Invoices(props) {
       </div>
 
       <Sheet open={isSheetOpen()} onOpenChange={setIsSheetOpen}>
-        <SheetContent size="content">
+        <SheetContent class="overflow-y-scroll">
           <SheetHeader>
             <SheetTitle>
               { invoice.id ? 'mise à jour' : 'creer' }
               &nbspune Creance
             </SheetTitle>
-            {/* <SheetDescription> */}
-            {/* </SheetDescription> */}
-            {/* <pre> */}
-            {/*   { JSON.stringify(invoice, null, 2) } */}
-            {/* </pre> */}
+            <SheetDescription>
+              Modifiez ici votre Creance. Cliquez sur Enregistrer lorsque vous avez terminé.
+            </SheetDescription>
+          </SheetHeader>
 
+          <div class="space-y-2 py-4">
             <Input
               type="text"
               placeholder="N"
@@ -158,24 +159,27 @@ function Invoices(props) {
               value={invoice?.paymentType || ''}
               onInput={e => setInvoice('paymentType', e.target.value)}
             />
-            <div class="py-4">
-              <Switch
-                class="flex gap-4 items-center justify-between"
-                checked={invoice?.paymentStatus === 'paid'}
-                value={invoice?.paymentStatus}
-                onChange={e => setInvoice('paymentStatus', e ? 'paid' : 'unpaid')}
-              >
-                <SwitchLabel class="flex-auto text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Etat Paiement
-                </SwitchLabel>
-                <SwitchInput />
-                <SwitchControl>
-                  <SwitchThumb />
-                </SwitchControl>
-              </Switch>
-            </div>
+          </div>
 
-            <Show when={services()}>
+          <div class="py-4">
+            <Switch
+              class="flex gap-4 items-center justify-between"
+              checked={invoice?.paymentStatus === 'paid'}
+              value={invoice?.paymentStatus}
+              onChange={e => setInvoice('paymentStatus', e ? 'paid' : 'unpaid')}
+            >
+              <SwitchLabel class="flex-auto text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Etat Paiement
+              </SwitchLabel>
+              <SwitchInput />
+              <SwitchControl>
+                <SwitchThumb />
+              </SwitchControl>
+            </Switch>
+          </div>
+
+          <Show when={services()}>
+            <div class="space-y-2">
               <For each={services()}>
                 { it => (
                   <Input
@@ -204,8 +208,8 @@ function Invoices(props) {
                   />
                 )}
               </For>
-            </Show>
-          </SheetHeader>
+            </div>
+          </Show>
           <SheetFooter>
             <Button
               class="mt-4 max-w-[8rem] ml-auto"
@@ -217,7 +221,7 @@ function Invoices(props) {
                 revalidate(getInvoice.key)
               }}
             >
-              { invoice.id ? 'mise à jour' : 'Enregistrer' }
+              Enregistrer
             </Button>
           </SheetFooter>
         </SheetContent>

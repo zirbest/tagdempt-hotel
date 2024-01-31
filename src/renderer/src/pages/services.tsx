@@ -15,6 +15,7 @@ import { Input } from '~/components/ui/input'
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -87,81 +88,84 @@ function Services(props) {
       </div>
 
       <Sheet open={isSheetOpen()} onOpenChange={setIsSheetOpen}>
-        <SheetContent size="content">
+        <SheetContent>
           <SheetHeader>
             <SheetTitle>
               { getValue(serviceForm, 'id')?.toString() !== '' ? 'mise à jour' : 'creer' }
               &nbspune Service
             </SheetTitle>
-            <Form
-              id="serviceForm"
-              class="space-y-2"
-              onSubmit={(v, _e) => {
-                v.id?.toString() === ''
-                && delete v.id
-
-                v.id
-                  ? window.electron.ipcRenderer.invoke('service-update', JSON.stringify(v))
-                  : window.electron.ipcRenderer.invoke('service-create', JSON.stringify(v))
-
-                reset(serviceForm)
-                revalidate(getServices.key)
-              }}
-            >
-              <Field
-                name="id"
-                type="string"
-              >
-                {(field, props) => (
-                  <>
-                    <Input {...props} type="hidden" value={field.value || ''} />
-                  </>
-                )}
-              </Field>
-              <Field
-                name="name"
-                validate={[
-                  required('Ce champ est requis.'),
-                ]}
-              >
-                {(field, props) => (
-                  <>
-                    <Input {...props} type="text" value={field.value || ''} placeholder="Nom" required />
-                    {field.error && <div>{field.error}</div>}
-                  </>
-                )}
-              </Field>
-              <Field
-                name="label"
-                validate={[
-                  required('Ce champ est requis.'),
-                ]}
-              >
-                {(field, props) => (
-                  <>
-                    <Input {...props} type="text" value={field.value || ''} placeholder="Label" required />
-                    {field.error && <div>{field.error}</div>}
-                  </>
-                )}
-              </Field>
-              <Field
-                name="description"
-                validate={[
-                  required('Ce champ est requis.'),
-                ]}
-              >
-                {(field, props) => (
-                  <>
-                    <Input {...props} type="text" value={field.value || ''} placeholder="Description" required />
-                    {field.error && <div>{field.error}</div>}
-                  </>
-                )}
-              </Field>
-            </Form>
+            <SheetDescription>
+              Modifiez ici votre Service. Cliquez sur Enregistrer lorsque vous avez terminé.
+            </SheetDescription>
           </SheetHeader>
+          <Form
+            id="serviceForm"
+            class="space-y-2"
+            onSubmit={(v, _e) => {
+              v.id?.toString() === ''
+              && delete v.id
+
+              v.id
+                ? window.electron.ipcRenderer.invoke('service-update', JSON.stringify(v))
+                : window.electron.ipcRenderer.invoke('service-create', JSON.stringify(v))
+
+              reset(serviceForm)
+              revalidate(getServices.key)
+            }}
+          >
+            <Field
+              name="id"
+              type="string"
+            >
+              {(field, props) => (
+                <>
+                  <Input {...props} type="hidden" value={field.value || ''} />
+                </>
+              )}
+            </Field>
+            <Field
+              name="name"
+              validate={[
+                required('Ce champ est requis.'),
+              ]}
+            >
+              {(field, props) => (
+                <>
+                  <Input {...props} type="text" value={field.value || ''} placeholder="Nom" required />
+                  {field.error && <div class="text-error-foreground">{field.error}</div>}
+                </>
+              )}
+            </Field>
+            <Field
+              name="label"
+              validate={[
+                required('Ce champ est requis.'),
+              ]}
+            >
+              {(field, props) => (
+                <>
+                  <Input {...props} type="text" value={field.value || ''} placeholder="Label" required />
+                  {field.error && <div class="text-error-foreground">{field.error}</div>}
+                </>
+              )}
+            </Field>
+            <Field
+              name="description"
+              validate={[
+                required('Ce champ est requis.'),
+              ]}
+            >
+              {(field, props) => (
+                <>
+                  <Input {...props} type="text" value={field.value || ''} placeholder="Description" required />
+                  {field.error && <div class="text-error-foreground">{field.error}</div>}
+                </>
+              )}
+            </Field>
+          </Form>
           <SheetFooter>
             <Button class="mt-4" type="submit" form="serviceForm">
-              { getValue(serviceForm, 'id')?.toString() !== '' ? 'mise à jour' : 'Enregistrer' }
+              Enregistrer
             </Button>
           </SheetFooter>
         </SheetContent>
