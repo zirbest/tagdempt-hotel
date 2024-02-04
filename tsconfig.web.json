@@ -20,6 +20,6 @@
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.tsx",
     "src/preload/*.d.ts",
-    "src/main/db/*"
-  ]
+    "src/main/db/*",
+    "src/main/lib/types.ts", "src/main/lib/validations.ts"]
 }

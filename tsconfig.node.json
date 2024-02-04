@@ -9,6 +9,6 @@
     "src/main/*",
     "src/preload/*",
     "src/main/db/*",
-    "src/main/lib/*"
-  ]
+    "src/main/lib/*",
+    "src/renderer/src/lib/validations.ts"]
 }
