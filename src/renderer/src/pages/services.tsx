@@ -1,8 +1,8 @@
 import { cache, createAsync, revalidate } from '@solidjs/router'
 import { For, createSignal } from 'solid-js'
-import type { Service, ServiceForm } from 'src/main/db/schema'
-import { createForm, getValue, required, reset, setValues } from '@modular-forms/solid'
-
+import type { Service, ServiceForm } from 'src/main/lib/types'
+import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
+import { ServiceSchema } from '~/lib/validations'
 import {
   Table,
   TableBody,
@@ -35,7 +35,9 @@ function Services(props) {
   const services = createAsync<Service[]>(() => getServices(props.location.query.search))
   const [isSheetOpen, setIsSheetOpen] = createSignal(false)
 
-  const [serviceForm, { Form, Field }] = createForm<ServiceForm>()
+  const [serviceForm, { Form, Field }] = createForm<ServiceForm>({
+    validate: valiForm(ServiceSchema),
+  })
 
   return (
     <div class="grid gap-8 grid-rows-[auto,auto,1fr]">
@@ -68,7 +70,8 @@ function Services(props) {
               { it => (
                 <TableRow onClick={() => {
                   setIsSheetOpen(true)
-                  setValues(serviceForm, it)
+                  const { id, ...rest } = it
+                  setValues(serviceForm, { id: String(id), ...rest })
                 }}
                 >
                   <TableCell>
@@ -88,7 +91,7 @@ function Services(props) {
       </div>
 
       <Sheet open={isSheetOpen()} onOpenChange={setIsSheetOpen}>
-        <SheetContent>
+        <SheetContent class="overflow-auto">
           <SheetHeader>
             <SheetTitle>
               { getValue(serviceForm, 'id')?.toString() !== '' ? 'mise à jour' : 'creer' }
@@ -98,71 +101,79 @@ function Services(props) {
               Modifiez ici votre Service. Cliquez sur Enregistrer lorsque vous avez terminé.
             </SheetDescription>
           </SheetHeader>
-          <Form
-            id="serviceForm"
-            class="space-y-2"
-            onSubmit={(v, _e) => {
-              v.id?.toString() === ''
-              && delete v.id
+          <div class="py-4">
+            <Form
+              shouldDirty
+              id="serviceForm"
+              class="space-y-2"
+              onSubmit={(v, _e) => {
+                v.id
+                  ? window.electron.ipcRenderer.invoke('service-update', JSON.stringify(v))
+                  : window.electron.ipcRenderer.invoke('service-create', JSON.stringify(v))
 
-              v.id
-                ? window.electron.ipcRenderer.invoke('service-update', JSON.stringify(v))
-                : window.electron.ipcRenderer.invoke('service-create', JSON.stringify(v))
-
-              reset(serviceForm)
-              revalidate(getServices.key)
-            }}
-          >
-            <Field
-              name="id"
-              type="string"
+                reset(serviceForm)
+                revalidate(getServices.key)
+              }}
             >
-              {(field, props) => (
-                <>
-                  <Input {...props} type="hidden" value={field.value || ''} />
-                </>
-              )}
-            </Field>
-            <Field
-              name="name"
-              validate={[
-                required('Ce champ est requis.'),
-              ]}
-            >
-              {(field, props) => (
-                <>
-                  <Input {...props} type="text" value={field.value || ''} placeholder="Nom" required />
-                  {field.error && <div class="text-error-foreground">{field.error}</div>}
-                </>
-              )}
-            </Field>
-            <Field
-              name="label"
-              validate={[
-                required('Ce champ est requis.'),
-              ]}
-            >
-              {(field, props) => (
-                <>
-                  <Input {...props} type="text" value={field.value || ''} placeholder="Label" required />
-                  {field.error && <div class="text-error-foreground">{field.error}</div>}
-                </>
-              )}
-            </Field>
-            <Field
-              name="description"
-              validate={[
-                required('Ce champ est requis.'),
-              ]}
-            >
-              {(field, props) => (
-                <>
-                  <Input {...props} type="text" value={field.value || ''} placeholder="Description" required />
-                  {field.error && <div class="text-error-foreground">{field.error}</div>}
-                </>
-              )}
-            </Field>
-          </Form>
+              <Field
+                name="id"
+              >
+                {(field, props) => (
+                  <>
+                    <Input {...props} type="hidden" value={field.value || -1} />
+                  </>
+                )}
+              </Field>
+              <Field
+                name="name"
+              >
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="text"
+                      value={field.value || ''}
+                      placeholder="Nom"
+                      required
+                    />
+                  </>
+                )}
+              </Field>
+              <Field
+                name="label"
+              >
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="text"
+                      value={field.value || ''}
+                      placeholder="Label"
+                      required
+                    />
+                  </>
+                )}
+              </Field>
+              <Field
+                name="description"
+              >
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="text"
+                      value={field.value || ''}
+                      placeholder="Description"
+                      required
+                    />
+                  </>
+                )}
+              </Field>
+            </Form>
+          </div>
           <SheetFooter>
             <Button class="mt-4" type="submit" form="serviceForm">
               Enregistrer

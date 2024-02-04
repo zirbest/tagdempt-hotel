@@ -1,7 +1,8 @@
 import { cache, createAsync, revalidate } from '@solidjs/router'
-import { For, Show, createSignal } from 'solid-js'
-import { createStore, reconcile } from 'solid-js/store'
-import type { Invoice, Service } from 'src/main/db/schema'
+import { For, createSignal } from 'solid-js'
+import type { InvoiceForm, InvoiceToServiceForm, ServiceForm } from 'src/main/lib/types'
+import { createForm, getValue, getValues, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
+import * as v from 'valibot'
 import {
   Table,
   TableBody,
@@ -23,6 +24,7 @@ import { Button } from '~/components/ui/button'
 import Header from '~/components/Header'
 import { Switch, SwitchControl, SwitchInput, SwitchLabel, SwitchThumb } from '@/components/ui/switch'
 import { Badge } from '~/components/ui/badge'
+import { InvoiceSchema } from '~/lib/validations'
 
 const getInvoice = cache(async (search) => {
   return await window.electron.ipcRenderer.invoke('invoices-read', search)
@@ -37,11 +39,19 @@ const getServices = cache(async () => {
 }, 'invoices')
 
 function Invoices(props) {
-  const invoices = createAsync<Invoice[]>(() => getInvoice(props.location.query.search))
-  const services = createAsync<Service[]>(() => getServices())
+  const invoices = createAsync(() => getInvoice(props.location.query.search))
+  const services = createAsync(() => getServices())
 
-  const [invoice, setInvoice] = createStore<any>()
+  const [invoiceForm, { Form, Field, FieldArray }] = createForm<InvoiceForm>({
+    validate: valiForm(InvoiceSchema),
+  })
+
   const [isSheetOpen, setIsSheetOpen] = createSignal(false)
+
+  function setEmptyState() {
+    const values = services()?.map((v: ServiceForm) => ({ serviceId: v.id }))
+    setValues(invoiceForm, { paymentStatus: 'unpaid', invoicesToServices: values })
+  }
 
   return (
     <div class="grid gap-8 grid-rows-[auto,auto,1fr]">
@@ -53,7 +63,9 @@ function Invoices(props) {
         <Button
           onClick={() => {
             setIsSheetOpen(v => !v)
-            setInvoice(reconcile({}))
+            reset(invoiceForm)
+
+            setEmptyState()
           }}
         >
           Créer
@@ -82,8 +94,23 @@ function Invoices(props) {
             <For each={invoices()}>
               { it => (
                 <TableRow onClick={() => {
-                  setInvoice(it)
                   setIsSheetOpen(true)
+                  const { invoicesToServices: a, ...rest } = it
+
+                  const stuck: any = []
+                  for (const it of services() || []) {
+                    const res = a?.some((i: InvoiceToServiceForm) => i.serviceId === it.id)
+                    !res && stuck.push({ serviceId: it.id, amount: '' })
+                  }
+
+                  let defaultValues: any = v.safeParse(InvoiceSchema, {
+                    ...rest,
+                    invoicesToServices: [...a, ...stuck],
+                  }).output
+
+                  defaultValues.invoicesToServices?.sort((a: InvoiceToServiceForm, b: InvoiceToServiceForm) => b.serviceId - a.serviceId)
+                  setValues(invoiceForm, defaultValues)
+                  defaultValues = { invoicesToServices: [] }
                 }}
                 >
                   <TableCell class="tabular-nums">
@@ -120,7 +147,7 @@ function Invoices(props) {
         <SheetContent class="overflow-y-scroll">
           <SheetHeader>
             <SheetTitle>
-              { invoice.id ? 'mise à jour' : 'creer' }
+              { getValue(invoiceForm, 'id')?.toString() !== '' ? 'mise à jour' : 'creer' }
               &nbspune Creance
             </SheetTitle>
             <SheetDescription>
@@ -128,98 +155,179 @@ function Invoices(props) {
             </SheetDescription>
           </SheetHeader>
 
-          <div class="space-y-2 py-4">
-            <Input
-              type="text"
-              placeholder="N"
-              value={invoice?.number || ''}
-              onInput={e => setInvoice('number', e.target.value)}
-            />
-            <Input
-              type="date"
-              placeholder="Date"
-              value={invoice?.date || ''}
-              onInput={e => setInvoice('date', e.target.value)}
-            />
-            <Input
-              type="text"
-              placeholder="Montant"
-              value={invoice?.amount || ''}
-              onInput={e => setInvoice('amount', e.target.value)}
-            />
-            <Input
-              type="date"
-              placeholder="Date Paiment"
-              value={invoice?.paymentDate || ''}
-              onInput={e => setInvoice('paymentDate', e.target.value)}
-            />
-            <Input
-              type="text"
-              placeholder="Genre de Paiment"
-              value={invoice?.paymentType || ''}
-              onInput={e => setInvoice('paymentType', e.target.value)}
-            />
-          </div>
-
           <div class="py-4">
-            <Switch
-              class="flex gap-4 items-center justify-between"
-              checked={invoice?.paymentStatus === 'paid'}
-              value={invoice?.paymentStatus}
-              onChange={e => setInvoice('paymentStatus', e ? 'paid' : 'unpaid')}
-            >
-              <SwitchLabel class="flex-auto text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Etat Paiement
-              </SwitchLabel>
-              <SwitchInput />
-              <SwitchControl>
-                <SwitchThumb />
-              </SwitchControl>
-            </Switch>
-          </div>
+            <Form
+              shouldDirty
+              id="invoiceForm"
+              class="space-y-2"
+              onSubmit={(v, _e) => {
+                v.id
+                  ? window.electron.ipcRenderer.invoke('invoice-update', JSON.stringify(v))
+                  : window.electron.ipcRenderer.invoke('invoice-create', JSON.stringify(v))
 
-          <Show when={services()}>
-            <div class="space-y-2">
-              <For each={services()}>
-                { it => (
-                  <Input
-                    type="text"
-                    placeholder={it.label}
-                    value={
-                      invoice?.invoicesToServices
-                        ?.find(invToServ => invToServ.serviceId === it.id)
-                        ?.amount || ''
-                    }
-                    onInput={(e) => {
-                      const index = invoice?.invoicesToServices
-                        ?.findIndex(invToServ => invToServ.serviceId === it.id)
-
-                      // TODO: simplify it
-                      index !== -1 && invoice?.invoicesToServices
-                        ? invoice?.invoicesToServices && setInvoice('invoicesToServices', index, 'amount', e.target.value)
-                        : setInvoice('invoicesToServices', [
-                          ...invoice?.invoicesToServices ? invoice?.invoicesToServices : [],
-                          {
-                            amount: e.target.value,
-                            serviceId: it.id,
-                          },
-                        ])
-                    }}
-                  />
-                )}
-              </For>
-            </div>
-          </Show>
-          <SheetFooter>
-            <Button
-              class="mt-4 max-w-[8rem] ml-auto"
-              onClick={() => {
-                invoice.id
-                  ? window.electron.ipcRenderer.invoke('invoice-update', JSON.stringify(invoice))
-                  : window.electron.ipcRenderer.invoke('invoice-create', JSON.stringify(invoice))
-                setInvoice(reconcile({}))
+                reset(invoiceForm)
+                setEmptyState()
                 revalidate(getInvoice.key)
               }}
+            >
+              <Field name="id">
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="hidden"
+                      value={field.value || '-1'}
+                    />
+                  </>
+                )}
+              </Field>
+              <Field
+                name="number"
+              >
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="text"
+                      value={field.value || ''}
+                      placeholder="N' Facture"
+                    />
+                  </>
+                )}
+              </Field>
+              <Field
+                name="date"
+              >
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="date"
+                      value={field.value || ''}
+                    />
+                  </>
+                )}
+              </Field>
+              <Field
+                name="amount"
+              >
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="text"
+                      value={field.value || ''}
+                      placeholder="Montant"
+                    />
+                  </>
+                )}
+              </Field>
+              <Field
+                name="paymentStatus"
+              >
+                {(field, _props) => (
+                  <>
+                    <div class="pt-5 pb-2">
+                      <Switch
+                        class="flex gap-4 items-center justify-between"
+                        checked={field.value === 'paid'}
+                        value={field.value}
+                        onChange={e => setValue(invoiceForm, 'paymentStatus', e ? 'paid' : 'unpaid')}
+                      >
+                        <SwitchLabel
+                          class="flex-auto text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Etat Paiement
+                        </SwitchLabel>
+                        <SwitchInput />
+                        <SwitchControl>
+                          <SwitchThumb />
+                        </SwitchControl>
+                      </Switch>
+                    </div>
+                  </>
+                )}
+              </Field>
+              <Field
+                name="paymentDate"
+              >
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="date"
+                      value={field.value || ''}
+                      placeholder="Montant"
+                    />
+                  </>
+                )}
+              </Field>
+              <Field
+                name="paymentType"
+              >
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="text"
+                      value={field.value || ''}
+                    />
+                  </>
+                )}
+              </Field>
+
+              <p class="text-md font-semibold pt-3">
+                Autres Servisses
+              </p>
+              <div class="space-y-2">
+                <FieldArray name="invoicesToServices">
+                  {fieldArray => (
+                    <For each={fieldArray.items}>
+                      {(_, index) => (
+                        <>
+                          <Field name={`invoicesToServices.${index()}.serviceId`}>
+                            {(field, props) => (
+                              <Input
+                                class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                                {...props}
+                                type="hidden"
+                                value={field.value || '-1'}
+                              />
+                            )}
+                          </Field>
+                          <Field name={`invoicesToServices.${index()}.amount`}>
+                            {(field, props) => (
+                              <>
+                                <Input
+                                  class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                                  {...props}
+                                  type="text"
+                                  value={field.value || ''}
+                                  placeholder={services?.()?.[index()].label}
+                                />
+                              </>
+                            )}
+                          </Field>
+                        </>
+                      )}
+                    </For>
+                  )}
+                </FieldArray>
+              </div>
+            </Form>
+          </div>
+
+          <SheetFooter>
+            <Button
+              class="mt-4"
+              type="submit"
+              form="invoiceForm"
             >
               Enregistrer
             </Button>

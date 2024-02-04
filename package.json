@@ -30,7 +30,9 @@
     "@modular-forms/solid": "^0.20.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "better-sqlite3": "^9.3.0",
-    "drizzle-orm": "^0.29.3"
+    "drizzle-orm": "^0.29.3",
+    "drizzle-valibot": "^0.1.1",
+    "valibot": "^0.27.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.6.3",

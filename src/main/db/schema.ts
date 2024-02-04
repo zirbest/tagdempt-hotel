@@ -68,12 +68,3 @@ export const invoicesToServicesRelations = relations(invoicesToServices, ({ one 
     references: [services.id],
   }),
 }))
-
-export type User = typeof users.$inferInsert
-export type Invoice = typeof invoices.$inferInsert
-export type Service = typeof services.$inferInsert
-export type invoiceToServices = typeof invoicesToServices.$inferInsert
-
-export type Auth = Omit<typeof users.$inferSelect, 'password'>
-// export type ServiceForm = Omit<typeof services.$inferInsert, 'updatedAt' | 'id'> & { id: string | number | undefined }
-export type ServiceForm = Omit<typeof services.$inferInsert, 'updatedAt'>

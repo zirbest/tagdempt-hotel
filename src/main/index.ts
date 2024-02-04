@@ -4,7 +4,7 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import icon from '../../resources/icon.png?asset'
 import { db } from './db'
-import type { Auth, invoiceToServices } from './db/schema'
+import type { Auth, InvoiceToService, InvoiceToServiceForm } from './lib/types'
 import { invoices, invoicesToServices, services, users } from './db/schema'
 import { appInit, searchStrToObj } from './lib/utils'
 
@@ -89,7 +89,8 @@ ipcMain.handle('invoice-create', async (_, req) => {
   })
 
   for (const it of invoicesToServicesReq) {
-    await db.insert(invoicesToServices).values({
+    it.amount && it?.amount !== ''
+    && await db.insert(invoicesToServices).values({
       ...it,
       invoiceId: res.lastInsertRowid,
       updatedAt: sql`CURRENT_TIMESTAMP`,
@@ -108,21 +109,21 @@ ipcMain.handle('invoice-update', async (_, req) => {
   },
   ).where(eq(invoices.id, id))
 
-  for (const it of invoicesToServicesReq as invoiceToServices[]) {
+  for (const it of invoicesToServicesReq as invoiceToServiceForm[]) {
     !it.amount
     && await db.delete(invoicesToServices)
       .where(and(
-        eq(invoicesToServices.invoiceId, it.invoiceId),
+        eq(invoicesToServices.invoiceId, id),
         eq(invoicesToServices.serviceId, it.serviceId),
       ))
 
-    it.invoiceId
+    id
       ? await db.update(invoicesToServices).set({
         amount: it.amount,
         updatedAt: sql`CURRENT_TIMESTAMP`,
       },
       ).where(and(
-        eq(invoicesToServices.invoiceId, it.invoiceId),
+        eq(invoicesToServices.invoiceId, id),
         eq(invoicesToServices.serviceId, it.serviceId),
       ))
 
@@ -153,6 +154,9 @@ ipcMain.handle('invoices-read', async (_, search) => {
       invoicesToServices: {
         with: {
           service: true,
+        },
+        orderBy({ serviceId }, { desc }) {
+          return desc(serviceId)
         },
       },
     },
