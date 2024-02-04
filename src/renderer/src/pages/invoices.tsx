@@ -3,6 +3,7 @@ import { For, createSignal } from 'solid-js'
 import type { InvoiceForm, InvoiceToServiceForm, ServiceForm } from 'src/main/lib/types'
 import { createForm, getValue, getValues, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
 import * as v from 'valibot'
+import { format } from 'date-fns'
 import {
   Table,
   TableBody,
@@ -116,14 +117,14 @@ function Invoices(props) {
                   <TableCell class="tabular-nums">
                     { it.number }
                   </TableCell>
-                  <TableCell class="font-medium tabular-nums">
-                    { it.date }
+                  <TableCell class="tabular-nums">
+                    { format(new Date(it.date), 'dd-MM-yyyy') }
                   </TableCell>
                   <TableCell class="text-right tabular-nums">
                     { it.amount }
                   </TableCell>
                   <TableCell class="text-center tabular-nums">
-                    { it.paymentDate }
+                    { format(new Date(it.paymentDate), 'dd-MM-yyyy') }
                   </TableCell>
                   <TableCell class="text-center">
                     { it.paymentType }
