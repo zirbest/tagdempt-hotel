@@ -83,7 +83,8 @@ function Invoices(props) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>N</TableHead>
+              <TableHead>#</TableHead>
+              <TableHead>Organisme</TableHead>
               <TableHead>Date</TableHead>
               <TableHead class="text-right">Montant</TableHead>
               <TableHead class="text-center">Date Paiment</TableHead>
@@ -116,6 +117,9 @@ function Invoices(props) {
                 >
                   <TableCell class="tabular-nums">
                     { it.number }
+                  </TableCell>
+                  <TableCell>
+                    { it.organization }
                   </TableCell>
                   <TableCell class="tabular-nums">
                     { format(new Date(it.date), 'dd-MM-yyyy') }
@@ -194,6 +198,21 @@ function Invoices(props) {
                       type="text"
                       value={field.value || ''}
                       placeholder="N' Facture"
+                    />
+                  </>
+                )}
+              </Field>
+              <Field
+                name="organization"
+              >
+                {(field, props) => (
+                  <>
+                    <Input
+                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      {...props}
+                      type="text"
+                      value={field.value || ''}
+                      placeholder="Organisme"
                     />
                   </>
                 )}
@@ -278,6 +297,7 @@ function Invoices(props) {
                       {...props}
                       type="text"
                       value={field.value || ''}
+                      placeholder="Genre de Paiement"
                     />
                   </>
                 )}

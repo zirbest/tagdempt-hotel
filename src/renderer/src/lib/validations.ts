@@ -15,6 +15,7 @@ export const ServiceSchema = v.object({
 
 export const InvoiceSchema = v.object({
   id: v.optional(v.coerce(v.string(), i => String(i))),
+  organization: v.string([v.minLength(2)]),
   number: v.coerce(v.string([v.minLength(1)]), i => String(i)),
   date: v.string([v.minLength(10)]),
   amount: v.coerce(v.string([v.minLength(1)]), i => String(i)),

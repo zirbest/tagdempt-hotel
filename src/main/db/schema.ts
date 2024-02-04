@@ -18,6 +18,7 @@ export const users = sqliteTable('users', {
 
 export const invoices = sqliteTable('invoices', {
   id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+  organization: text('organization').notNull(),
   number: integer('number').notNull(),
   date: numeric('date').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
   amount: real('amount').notNull(),
