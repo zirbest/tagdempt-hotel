@@ -5,11 +5,13 @@ import Login from './pages/login'
 import Layout from './pages/default.layout'
 import Invoices, { loadInvoice } from './pages/invoices'
 import Services, { loadServices } from './pages/services'
+import { Toaster } from './components/ui/toast'
 
 function rootLayout(props) {
   return (
     <AuthProvider>
       {props.children}
+      <Toaster />
     </AuthProvider>
   )
 }

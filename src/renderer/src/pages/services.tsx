@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '~/components/ui/button'
 import Header from '~/components/Header'
+import { showToast } from '~/components/ui/toast'
 
 const getServices = cache(async (search) => {
   return await window.electron.ipcRenderer.invoke('services-read', search)
@@ -107,12 +108,24 @@ function Services(props) {
               id="serviceForm"
               class="space-y-2"
               onSubmit={(v, _e) => {
-                v.id
+                const response = v.id
                   ? window.electron.ipcRenderer.invoke('service-update', JSON.stringify(v))
                   : window.electron.ipcRenderer.invoke('service-create', JSON.stringify(v))
 
-                reset(serviceForm)
-                revalidate(getServices.key)
+                response.then(() => {
+                  reset(serviceForm)
+                  revalidate(getServices.key)
+
+                  showToast({
+                    description: 'Enregistré avec succès',
+                  })
+                })
+                response.catch(() => {
+                  showToast({
+                    variant: 'destructive',
+                    description: 'Une erreur s\'est produite lors de l\'enregistrement',
+                  })
+                })
               }}
             >
               <Field

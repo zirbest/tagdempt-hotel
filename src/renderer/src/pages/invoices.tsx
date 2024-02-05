@@ -26,6 +26,7 @@ import Header from '~/components/Header'
 import { Switch, SwitchControl, SwitchInput, SwitchLabel, SwitchThumb } from '@/components/ui/switch'
 import { Badge } from '~/components/ui/badge'
 import { InvoiceSchema } from '~/lib/validations'
+import { showToast } from '~/components/ui/toast'
 
 const getInvoice = cache(async (search) => {
   return await window.electron.ipcRenderer.invoke('invoices-read', search)
@@ -166,13 +167,26 @@ function Invoices(props) {
               id="invoiceForm"
               class="space-y-2"
               onSubmit={(v, _e) => {
-                v.id
+                const response = v.id
                   ? window.electron.ipcRenderer.invoke('invoice-update', JSON.stringify(v))
                   : window.electron.ipcRenderer.invoke('invoice-create', JSON.stringify(v))
 
-                reset(invoiceForm)
-                setEmptyState()
-                revalidate(getInvoice.key)
+                response.then(() => {
+                  reset(invoiceForm)
+                  setEmptyState()
+                  revalidate(getInvoice.key)
+
+                  showToast({
+                    description: 'Enregistré avec succès',
+                  })
+                })
+
+                response.catch(() => {
+                  showToast({
+                    variant: 'destructive',
+                    description: 'Une erreur s\'est produite lors de l\'enregistrement',
+                  })
+                })
               }}
             >
               <Field name="id">
