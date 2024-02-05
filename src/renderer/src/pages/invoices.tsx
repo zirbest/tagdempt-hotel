@@ -30,6 +30,8 @@ import { showToast } from '~/components/ui/toast'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 import { cn } from '~/lib/utils'
 
+const HINTS = { d: 'date', n: 'N Facture', m: 'Montant', dp: 'Date Paiment', paye: '!paye' }
+
 const getInvoice = cache(async (search) => {
   return await window.electron.ipcRenderer.invoke('invoices-read', search)
 }, 'invoices')
@@ -60,7 +62,7 @@ function Invoices(props) {
   return (
     <div class="grid gap-8 grid-rows-[auto,auto,1fr]">
       <div class="flex justify-between print:hidden">
-        <Header> Creances </Header>
+        <Header hints={HINTS}> Creances </Header>
       </div>
 
       <div class="flex justify-end gap-3 print:hidden">
