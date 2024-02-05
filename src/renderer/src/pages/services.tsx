@@ -2,8 +2,10 @@ import { cache, createAsync, revalidate } from '@solidjs/router'
 import { For, Show, createSignal } from 'solid-js'
 import type { Service, ServiceForm } from 'src/main/lib/types'
 import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
+import MingcuteAddLine from '~icons/mingcute/add-line'
 import { ServiceSchema } from '~/lib/validations'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
+import MingcuteMore1Line from '~icons/mingcute/more-1-line'
 import {
   Table,
   TableBody,
@@ -54,6 +56,7 @@ function Services(props) {
             reset(serviceForm)
           }}
         >
+          <MingcuteAddLine class="mr-2 size-4" />
           Créer
         </Button>
       </div>
@@ -88,7 +91,7 @@ function Services(props) {
                     </TableCell>
                     <TableCell class="text-center">
                       <DropdownMenu>
-                        <DropdownMenuTrigger>...</DropdownMenuTrigger>
+                        <DropdownMenuTrigger><MingcuteMore1Line /></DropdownMenuTrigger>
                         <DropdownMenuContent>
                           <DropdownMenuItem
                             onSelect={() => {

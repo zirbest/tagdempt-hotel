@@ -5,6 +5,9 @@ import { createForm, getValue, reset, setValue, setValues, valiForm } from '@mod
 import * as v from 'valibot'
 import { format } from 'date-fns'
 import { NoItems } from './services'
+import MingcutePrintFill from '~icons/mingcute/print-fill'
+import MingcuteAddFill from '~icons/mingcute/add-line'
+import MingcuteMore1Line from '~icons/mingcute/more-1-line'
 import {
   Table,
   TableBody,
@@ -75,12 +78,14 @@ function Invoices(props) {
             setEmptyState()
           }}
         >
+          <MingcuteAddFill class="mr-2 size-4" />
           Créer
         </Button>
 
         <Button
           onClick={() => { window.print() }}
         >
+          <MingcutePrintFill class="mr-2 size-4" />
           Imprimer
         </Button>
       </div>
@@ -150,7 +155,7 @@ function Invoices(props) {
                     </TableCell>
                     <TableCell class="text-center print:hidden">
                       <DropdownMenu>
-                        <DropdownMenuTrigger>...</DropdownMenuTrigger>
+                        <DropdownMenuTrigger><MingcuteMore1Line /></DropdownMenuTrigger>
                         <DropdownMenuContent>
                           <DropdownMenuItem
                             onSelect={() => {

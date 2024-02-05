@@ -1,12 +1,13 @@
 import { useSearchParams } from '@solidjs/router'
 import { As } from '@kobalte/core'
+import type { JSXElement } from 'solid-js'
 import { For, Index, Show } from 'solid-js'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 import { Button } from './ui/button'
 import { Input } from '@/components/ui/input'
 import MingcuteInformationFill from '~icons/mingcute/information-fill'
 
-export default function Header(props) {
+export default function Header(props: { children: JSXElement, hints: object }) {
   const [searchParams, setSearchParams] = useSearchParams()
 
   return (
