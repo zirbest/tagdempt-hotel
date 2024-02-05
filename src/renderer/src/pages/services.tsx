@@ -5,7 +5,7 @@ import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms
 import MingcuteAddLine from '~icons/mingcute/add-line'
 import { ServiceSchema } from '~/lib/validations'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
-import MingcuteMore1Line from '~icons/mingcute/more-1-line'
+import MingcuteMore1Fill from '~icons/mingcute/more-1-line'
 import {
   Table,
   TableBody,
@@ -26,6 +26,7 @@ import {
 import { Button } from '~/components/ui/button'
 import Header from '~/components/Header'
 import { showToast } from '~/components/ui/toast'
+import { As } from '@kobalte/core'
 
 const getServices = cache(async (search) => {
   return await window.electron.ipcRenderer.invoke('services-read', search)
@@ -91,7 +92,11 @@ function Services(props) {
                     </TableCell>
                     <TableCell class="text-center">
                       <DropdownMenu>
-                        <DropdownMenuTrigger><MingcuteMore1Line /></DropdownMenuTrigger>
+                        <DropdownMenuTrigger asChild>
+                          <As component={Button} variant="ghost" size="sm">
+                            <MingcuteMore1Fill />
+                          </As>
+                        </DropdownMenuTrigger>
                         <DropdownMenuContent>
                           <DropdownMenuItem
                             onSelect={() => {

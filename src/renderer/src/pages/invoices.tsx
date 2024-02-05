@@ -4,10 +4,11 @@ import type { InvoiceForm, InvoiceToServiceForm, ServiceForm } from 'src/main/li
 import { createForm, getValue, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
 import * as v from 'valibot'
 import { format } from 'date-fns'
+import { As } from '@kobalte/core'
 import { NoItems } from './services'
 import MingcutePrintFill from '~icons/mingcute/print-fill'
 import MingcuteAddFill from '~icons/mingcute/add-line'
-import MingcuteMore1Line from '~icons/mingcute/more-1-line'
+import MingcuteMore1Fill from '~icons/mingcute/more-1-line'
 import {
   Table,
   TableBody,
@@ -155,7 +156,11 @@ function Invoices(props) {
                     </TableCell>
                     <TableCell class="text-center print:hidden">
                       <DropdownMenu>
-                        <DropdownMenuTrigger><MingcuteMore1Line /></DropdownMenuTrigger>
+                        <DropdownMenuTrigger asChild>
+                          <As component={Button} variant="ghost" size="sm">
+                            <MingcuteMore1Fill />
+                          </As>
+                        </DropdownMenuTrigger>
                         <DropdownMenuContent>
                           <DropdownMenuItem
                             onSelect={() => {
