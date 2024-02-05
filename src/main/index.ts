@@ -143,7 +143,8 @@ ipcMain.handle('invoices-read', async (_, search) => {
   const result = db.query.invoices.findMany({
     where(fields, { like, and }) {
       return and(
-        !search.q ? undefined : like(fields.number, `%${search.q}%`),
+        !search.q ? undefined : like(fields.organization, `%${search.q}%`),
+        !search.n ? undefined : like(fields.number, `%${search.n}%`),
         !search.d ? undefined : like(fields.date, `%${search.d}%`),
         !search.m ? undefined : like(fields.amount, `%${search.m}%`),
         !search.dp ? undefined : like(fields.paymentDate, `%${search.dp}%`),
