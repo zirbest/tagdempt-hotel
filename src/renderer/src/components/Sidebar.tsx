@@ -21,7 +21,7 @@ export default function Sidebar(props) {
   const navigate = useNavigate()
 
   return (
-    <div class={cn('h-screen flex flex-col bg-zinc-50 relative transition-[width,transform]', sidebarIsOpen() ? 'w-48' : 'w-0', props.class)}>
+    <div class={cn('h-screen flex flex-col bg-zinc-50 relative transition-[width,transform] print:hidden', sidebarIsOpen() ? 'w-48' : 'w-0', props.class)}>
       <div class="flex-auto">
         <div
           onClick={() => setSidebarIsOpen(v => !v)}

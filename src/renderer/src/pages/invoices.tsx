@@ -28,6 +28,7 @@ import { Badge } from '~/components/ui/badge'
 import { InvoiceSchema } from '~/lib/validations'
 import { showToast } from '~/components/ui/toast'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
+import { cn } from '~/lib/utils'
 
 const getInvoice = cache(async (search) => {
   return await window.electron.ipcRenderer.invoke('invoices-read', search)
@@ -58,11 +59,11 @@ function Invoices(props) {
 
   return (
     <div class="grid gap-8 grid-rows-[auto,auto,1fr]">
-      <div class="flex justify-between">
+      <div class="flex justify-between print:hidden">
         <Header> Creances </Header>
       </div>
 
-      <div class="flex justify-end gap-3">
+      <div class="flex justify-end gap-3 print:hidden">
         <Button
           onClick={() => {
             setIsSheetOpen(v => !v)
@@ -81,7 +82,7 @@ function Invoices(props) {
         </Button>
       </div>
 
-      <div class="border rounded-lg overflow-auto">
+      <div class="border rounded-lg overflow-auto print:[&_*]:text-[8pt] print:border-none">
         <Table>
           <TableHeader>
             <TableRow>
@@ -140,12 +141,12 @@ function Invoices(props) {
                   <TableCell class="text-center">
                     <Badge
                       variant="secondary"
-                      class={it.paymentStatus === 'unpaid' ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'}
+                      class={cn('whitespace-nowrap', it.paymentStatus === 'unpaid' ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900')}
                     >
                       { it.paymentStatus === 'paid' ? 'paye' : 'non paye' }
                     </Badge>
                   </TableCell>
-                  <TableCell class="text-center">
+                  <TableCell class="text-center print:hidden">
                     <DropdownMenu>
                       <DropdownMenuTrigger>...</DropdownMenuTrigger>
                       <DropdownMenuContent>
