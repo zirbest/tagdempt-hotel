@@ -1,5 +1,5 @@
 import { cache, createAsync, revalidate } from '@solidjs/router'
-import { For, createSignal } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
 import type { Service, ServiceForm } from 'src/main/lib/types'
 import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
 import { ServiceSchema } from '~/lib/validations'
@@ -68,48 +68,50 @@ function Services(props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <For each={services()}>
-              { it => (
-                <TableRow onClick={() => {
-                  setIsSheetOpen(true)
-                  const { id, ...rest } = it
-                  setValues(serviceForm, { id: String(id), ...rest })
-                }}
-                >
-                  <TableCell>
-                    { it.name }
-                  </TableCell>
-                  <TableCell>
-                    { it.label }
-                  </TableCell>
-                  <TableCell>
-                    { it.description }
-                  </TableCell>
-                  <TableCell class="text-center">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>...</DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem
-                          onSelect={() => {
-                            const response = window.electron.ipcRenderer.invoke('service-delete', JSON.stringify(it.id))
-                            response.then(() => {
-                              reset(serviceForm)
-                              revalidate(getServices.key)
+            <Show when={services?.()?.length > 0} fallback={<NoItems />}>
+              <For each={services()}>
+                { it => (
+                  <TableRow onClick={() => {
+                    setIsSheetOpen(true)
+                    const { id, ...rest } = it
+                    setValues(serviceForm, { id: String(id), ...rest })
+                  }}
+                  >
+                    <TableCell>
+                      { it.name }
+                    </TableCell>
+                    <TableCell>
+                      { it.label }
+                    </TableCell>
+                    <TableCell>
+                      { it.description }
+                    </TableCell>
+                    <TableCell class="text-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>...</DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem
+                            onSelect={() => {
+                              const response = window.electron.ipcRenderer.invoke('service-delete', JSON.stringify(it.id))
+                              response.then(() => {
+                                reset(serviceForm)
+                                revalidate(getServices.key)
 
-                              showToast({
-                                description: 'opération réussie',
+                                showToast({
+                                  description: 'opération réussie',
+                                })
                               })
-                            })
-                          }}
-                        >
-                          Supprime
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ) }
-            </For>
+                            }}
+                          >
+                            Supprime
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ) }
+              </For>
+            </Show>
           </TableBody>
         </Table>
       </div>
@@ -223,3 +225,16 @@ function Services(props) {
 }
 
 export default Services
+
+export function NoItems() {
+  return (
+    <TableRow>
+      <TableCell
+        class="p-9 text-center"
+        colspan="100%"
+      >
+        Aucun élément
+      </TableCell>
+    </TableRow>
+  )
+}

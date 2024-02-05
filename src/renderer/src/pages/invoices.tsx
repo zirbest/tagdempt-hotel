@@ -4,6 +4,7 @@ import type { InvoiceForm, InvoiceToServiceForm, ServiceForm } from 'src/main/li
 import { createForm, getValue, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
 import * as v from 'valibot'
 import { format } from 'date-fns'
+import { NoItems } from './services'
 import {
   Table,
   TableBody,
@@ -95,85 +96,85 @@ function Invoices(props) {
               <TableHead class="text-center">Date Paiment</TableHead>
               <TableHead class="text-center">Genre de Paiement</TableHead>
               <TableHead class="text-center">Etat Paiement</TableHead>
-
-              {/* <TableHead class="text-center">Actions</TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody>
-            <For each={invoices()}>
-              { it => (
-                <TableRow onClick={() => {
-                  setIsSheetOpen(true)
-                  const { invoicesToServices: a, ...rest } = it
+            <Show when={invoices?.()?.length > 0} fallback={<NoItems />}>
+              <For each={invoices()}>
+                { it => (
+                  <TableRow onClick={() => {
+                    setIsSheetOpen(true)
+                    const { invoicesToServices: a, ...rest } = it
 
-                  const stuck: any = []
-                  for (const it of services() || []) {
-                    const res = a?.some((i: InvoiceToServiceForm) => i.serviceId === it.id)
-                    !res && stuck.push({ serviceId: it.id, amount: '' })
-                  }
+                    const stuck: any = []
+                    for (const it of services() || []) {
+                      const res = a?.some((i: InvoiceToServiceForm) => i.serviceId === it.id)
+                      !res && stuck.push({ serviceId: it.id, amount: '' })
+                    }
 
-                  let defaultValues: any = v.safeParse(InvoiceSchema, {
-                    ...rest,
-                    invoicesToServices: [...a, ...stuck],
-                  }).output
+                    let defaultValues: any = v.safeParse(InvoiceSchema, {
+                      ...rest,
+                      invoicesToServices: [...a, ...stuck],
+                    }).output
 
-                  defaultValues.invoicesToServices?.sort((a: InvoiceToServiceForm, b: InvoiceToServiceForm) => b.serviceId - a.serviceId)
-                  setValues(invoiceForm, defaultValues)
-                  defaultValues = { invoicesToServices: [] }
-                }}
-                >
-                  <TableCell class="tabular-nums">
-                    { it.number }
-                  </TableCell>
-                  <TableCell>
-                    { it.organization }
-                  </TableCell>
-                  <TableCell class="tabular-nums">
-                    { format(new Date(it.date), 'dd-MM-yyyy') }
-                  </TableCell>
-                  <TableCell class="text-right tabular-nums">
-                    { it.amount }
-                  </TableCell>
-                  <TableCell class="text-center tabular-nums">
-                    { format(new Date(it.paymentDate), 'dd-MM-yyyy') }
-                  </TableCell>
-                  <TableCell class="text-center">
-                    { it.paymentType }
-                  </TableCell>
-                  <TableCell class="text-center">
-                    <Badge
-                      variant="secondary"
-                      class={cn('whitespace-nowrap', it.paymentStatus === 'unpaid' ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900')}
-                    >
-                      { it.paymentStatus === 'paid' ? 'paye' : 'non paye' }
-                    </Badge>
-                  </TableCell>
-                  <TableCell class="text-center print:hidden">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>...</DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem
-                          onSelect={() => {
-                            const response = window.electron.ipcRenderer.invoke('invoice-delete', JSON.stringify(it.id))
-                            response.then(() => {
-                              reset(invoiceForm)
-                              setEmptyState()
-                              revalidate(getInvoice.key)
+                    defaultValues.invoicesToServices?.sort((a: InvoiceToServiceForm, b: InvoiceToServiceForm) => b.serviceId - a.serviceId)
+                    setValues(invoiceForm, defaultValues)
+                    defaultValues = { invoicesToServices: [] }
+                  }}
+                  >
+                    <TableCell class="tabular-nums">
+                      { it.number }
+                    </TableCell>
+                    <TableCell>
+                      { it.organization }
+                    </TableCell>
+                    <TableCell class="tabular-nums">
+                      { format(new Date(it.date), 'dd-MM-yyyy') }
+                    </TableCell>
+                    <TableCell class="text-right tabular-nums">
+                      { it.amount }
+                    </TableCell>
+                    <TableCell class="text-center tabular-nums">
+                      { format(new Date(it.paymentDate), 'dd-MM-yyyy') }
+                    </TableCell>
+                    <TableCell class="text-center">
+                      { it.paymentType }
+                    </TableCell>
+                    <TableCell class="text-center">
+                      <Badge
+                        variant="secondary"
+                        class={cn('whitespace-nowrap', it.paymentStatus === 'unpaid' ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900')}
+                      >
+                        { it.paymentStatus === 'paid' ? 'paye' : 'non paye' }
+                      </Badge>
+                    </TableCell>
+                    <TableCell class="text-center print:hidden">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>...</DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem
+                            onSelect={() => {
+                              const response = window.electron.ipcRenderer.invoke('invoice-delete', JSON.stringify(it.id))
+                              response.then(() => {
+                                reset(invoiceForm)
+                                setEmptyState()
+                                revalidate(getInvoice.key)
 
-                              showToast({
-                                description: 'opération réussie',
+                                showToast({
+                                  description: 'opération réussie',
+                                })
                               })
-                            })
-                          }}
-                        >
-                          Supprime
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ) }
-            </For>
+                            }}
+                          >
+                            Supprime
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ) }
+              </For>
+            </Show>
           </TableBody>
         </Table>
       </div>
