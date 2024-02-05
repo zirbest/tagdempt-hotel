@@ -4,9 +4,9 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import icon from '../../resources/icon.png?asset'
 import { db } from './db'
-import type { Auth, InvoiceToService, InvoiceToServiceForm } from './lib/types'
 import { invoices, invoicesToServices, services, users } from './db/schema'
 import { appInit, searchStrToObj } from './lib/utils'
+import type { InvoiceToServiceForm } from './lib/types'
 
 function createWindow(): void {
   // Create the browser window.
@@ -88,13 +88,15 @@ ipcMain.handle('invoice-create', async (_, req) => {
     updatedAt: sql`CURRENT_TIMESTAMP`,
   })
 
-  for (const it of invoicesToServicesReq) {
-    it.amount && it?.amount !== ''
-    && await db.insert(invoicesToServices).values({
-      ...it,
-      invoiceId: res.lastInsertRowid,
-      updatedAt: sql`CURRENT_TIMESTAMP`,
-    })
+  if (invoicesToServicesReq && invoicesToServicesReq.length > 0) {
+    for (const it of invoicesToServicesReq) {
+      it.amount && it?.amount !== ''
+      && await db.insert(invoicesToServices).values({
+        ...it,
+        invoiceId: res.lastInsertRowid,
+        updatedAt: sql`CURRENT_TIMESTAMP`,
+      })
+    }
   }
 
   return res
@@ -102,6 +104,7 @@ ipcMain.handle('invoice-create', async (_, req) => {
 
 ipcMain.handle('invoice-update', async (_, req) => {
   const { id, invoicesToServices: invoicesToServicesReq, ...invoiceReq } = JSON.parse(req)
+  console.log(JSON.parse(req))
 
   const res = await db.update(invoices).set({
     ...invoiceReq,
@@ -109,29 +112,25 @@ ipcMain.handle('invoice-update', async (_, req) => {
   },
   ).where(eq(invoices.id, id))
 
-  for (const it of invoicesToServicesReq as invoiceToServiceForm[]) {
-    !it.amount
-    && await db.delete(invoicesToServices)
-      .where(and(
-        eq(invoicesToServices.invoiceId, id),
-        eq(invoicesToServices.serviceId, it.serviceId),
-      ))
+  if (invoicesToServicesReq && invoicesToServicesReq.length > 0) {
+    for (const it of invoicesToServicesReq) {
+      !it.amount
+        ? await db.delete(invoicesToServices)
+          .where(and(
+            eq(invoicesToServices.invoiceId, id),
+            eq(invoicesToServices.serviceId, it.serviceId),
+          ))
 
-    id
-      ? await db.update(invoicesToServices).set({
-        amount: it.amount,
-        updatedAt: sql`CURRENT_TIMESTAMP`,
-      },
-      ).where(and(
-        eq(invoicesToServices.invoiceId, id),
-        eq(invoicesToServices.serviceId, it.serviceId),
-      ))
-
-      : await db.insert(invoicesToServices).values({
-        ...it,
-        invoiceId: id,
-        updatedAt: sql`CURRENT_TIMESTAMP`,
-      })
+        : await db.insert(invoicesToServices).values({
+          ...it,
+          invoiceId: id,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
+        })
+          .onConflictDoUpdate({
+            target: [invoicesToServices.invoiceId, invoicesToServices.serviceId],
+            set: { ...it },
+          })
+    }
   }
 
   return res
@@ -140,7 +139,7 @@ ipcMain.handle('invoice-update', async (_, req) => {
 ipcMain.handle('invoices-read', async (_, search) => {
   search = searchStrToObj(search)
 
-  const result = db.query.invoices.findMany({
+  const result = await db.query.invoices.findMany({
     where(fields, { like, and }) {
       return and(
         !search.q ? undefined : like(fields.organization, `%${search.q}%`),
@@ -163,6 +162,11 @@ ipcMain.handle('invoices-read', async (_, search) => {
     },
     orderBy: [desc(invoices.id)],
   })
+  return result
+})
+
+ipcMain.handle('invoice-delete', async (_, id) => {
+  const result = await db.delete(invoices).where(eq(invoices.id, id))
   return result
 })
 
@@ -205,6 +209,11 @@ ipcMain.handle('service-update', async (_, req) => {
   ).where(eq(services.id, id))
 
   return res
+})
+
+ipcMain.handle('service-delete', async (_, id) => {
+  const result = await db.delete(services).where(eq(services.id, id))
+  return result
 })
 
 // }}}

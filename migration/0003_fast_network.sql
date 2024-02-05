@@ -1,1 +1,0 @@
-ALTER TABLE invoices ADD `organization` text NOT NULL;

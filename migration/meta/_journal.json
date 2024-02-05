@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1706347661934,
-      "tag": "0000_optimal_next_avengers",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1706521186683,
-      "tag": "0001_third_blue_blade",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1706522035026,
-      "tag": "0002_stale_maximus",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1707051059980,
-      "tag": "0003_fast_network",
+      "when": 1707133352970,
+      "tag": "0000_fantastic_talkback",
       "breakpoints": true
     }
   ]

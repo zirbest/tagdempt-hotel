@@ -1,7 +1,7 @@
 import { cache, createAsync, revalidate } from '@solidjs/router'
-import { For, createSignal } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
 import type { InvoiceForm, InvoiceToServiceForm, ServiceForm } from 'src/main/lib/types'
-import { createForm, getValue, getValues, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
+import { createForm, getValue, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
 import * as v from 'valibot'
 import { format } from 'date-fns'
 import {
@@ -27,6 +27,7 @@ import { Switch, SwitchControl, SwitchInput, SwitchLabel, SwitchThumb } from '@/
 import { Badge } from '~/components/ui/badge'
 import { InvoiceSchema } from '~/lib/validations'
 import { showToast } from '~/components/ui/toast'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 
 const getInvoice = cache(async (search) => {
   return await window.electron.ipcRenderer.invoke('invoices-read', search)
@@ -91,6 +92,8 @@ function Invoices(props) {
               <TableHead class="text-center">Date Paiment</TableHead>
               <TableHead class="text-center">Genre de Paiement</TableHead>
               <TableHead class="text-center">Etat Paiement</TableHead>
+
+              {/* <TableHead class="text-center">Actions</TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -141,6 +144,29 @@ function Invoices(props) {
                     >
                       { it.paymentStatus === 'paid' ? 'paye' : 'non paye' }
                     </Badge>
+                  </TableCell>
+                  <TableCell class="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>...</DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            const response = window.electron.ipcRenderer.invoke('invoice-delete', JSON.stringify(it.id))
+                            response.then(() => {
+                              reset(invoiceForm)
+                              setEmptyState()
+                              revalidate(getInvoice.key)
+
+                              showToast({
+                                description: 'opération réussie',
+                              })
+                            })
+                          }}
+                        >
+                          Supprime
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ) }
@@ -317,44 +343,46 @@ function Invoices(props) {
                 )}
               </Field>
 
-              <p class="text-md font-semibold pt-3">
-                Autres Servisses
-              </p>
-              <div class="space-y-2">
-                <FieldArray name="invoicesToServices">
-                  {fieldArray => (
-                    <For each={fieldArray.items}>
-                      {(_, index) => (
-                        <>
-                          <Field name={`invoicesToServices.${index()}.serviceId`}>
-                            {(field, props) => (
-                              <Input
-                                class={field.error && 'border-error-foreground focus-visible:ring-error'}
-                                {...props}
-                                type="hidden"
-                                value={field.value || '-1'}
-                              />
-                            )}
-                          </Field>
-                          <Field name={`invoicesToServices.${index()}.amount`}>
-                            {(field, props) => (
-                              <>
+              <Show when={services?.().length > 0}>
+                <p class="text-md font-semibold pt-3">
+                  Autres Servisses
+                </p>
+                <div class="space-y-2">
+                  <FieldArray name="invoicesToServices">
+                    {fieldArray => (
+                      <For each={fieldArray.items}>
+                        {(_, index) => (
+                          <>
+                            <Field name={`invoicesToServices.${index()}.serviceId`}>
+                              {(field, props) => (
                                 <Input
                                   class={field.error && 'border-error-foreground focus-visible:ring-error'}
                                   {...props}
-                                  type="text"
-                                  value={field.value || ''}
-                                  placeholder={services?.()?.[index()].label}
+                                  type="hidden"
+                                  value={field.value || '-1'}
                                 />
-                              </>
-                            )}
-                          </Field>
-                        </>
-                      )}
-                    </For>
-                  )}
-                </FieldArray>
-              </div>
+                              )}
+                            </Field>
+                            <Field name={`invoicesToServices.${index()}.amount`}>
+                              {(field, props) => (
+                                <>
+                                  <Input
+                                    class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                                    {...props}
+                                    type="text"
+                                    value={field.value || ''}
+                                    placeholder={services?.()?.[index()].label}
+                                  />
+                                </>
+                              )}
+                            </Field>
+                          </>
+                        )}
+                      </For>
+                    )}
+                  </FieldArray>
+                </div>
+              </Show>
             </Form>
           </div>
 

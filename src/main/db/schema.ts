@@ -1,4 +1,4 @@
-import { integer, numeric, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { integer, numeric, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { relations, sql } from 'drizzle-orm'
 
 // import { init } from '@paralleldrive/cuid2'
@@ -10,14 +10,14 @@ import { relations, sql } from 'drizzle-orm'
 // })
 
 export const users = sqliteTable('users', {
-  id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+  id: integer('id').primaryKey({ autoIncrement: true }),
   username: text('username').notNull().unique(),
   password: text('password').notNull(),
   role: text('role', { enum: ['admin', 'user'] }).notNull().default('user'),
 })
 
 export const invoices = sqliteTable('invoices', {
-  id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+  id: integer('id').primaryKey({ autoIncrement: true }),
   organization: text('organization').notNull(),
   number: integer('number').notNull(),
   date: numeric('date').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
@@ -31,7 +31,7 @@ export const invoices = sqliteTable('invoices', {
 })
 
 export const services = sqliteTable('services', {
-  id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+  id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').unique().notNull(),
   label: text('label').unique().notNull(),
   description: text('description').notNull(),
@@ -43,12 +43,16 @@ export const services = sqliteTable('services', {
 })
 
 export const invoicesToServices = sqliteTable('invoices_to_services', {
-  invoiceId: integer('invoice_id').notNull().references(() => invoices.id),
-  serviceId: integer('service_id').notNull().references(() => services.id),
+  invoiceId: integer('invoice_id').notNull().references(() => invoices.id, { onDelete: 'cascade' }),
+  serviceId: integer('service_id').notNull().references(() => services.id, { onDelete: 'cascade' }),
 
   amount: real('amount').notNull(),
   createdAt: numeric('created_at').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
   updatedAt: numeric('updated_at').notNull(),
+}, (table) => {
+  return {
+    pk: primaryKey({ columns: [table.invoiceId, table.serviceId] }),
+  }
 })
 
 export const invoicesRelations = relations(invoices, ({ many }) => ({

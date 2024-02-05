@@ -3,6 +3,7 @@ import { For, createSignal } from 'solid-js'
 import type { Service, ServiceForm } from 'src/main/lib/types'
 import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
 import { ServiceSchema } from '~/lib/validations'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 import {
   Table,
   TableBody,
@@ -83,6 +84,28 @@ function Services(props) {
                   </TableCell>
                   <TableCell>
                     { it.description }
+                  </TableCell>
+                  <TableCell class="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>...</DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            const response = window.electron.ipcRenderer.invoke('service-delete', JSON.stringify(it.id))
+                            response.then(() => {
+                              reset(serviceForm)
+                              revalidate(getServices.key)
+
+                              showToast({
+                                description: 'opération réussie',
+                              })
+                            })
+                          }}
+                        >
+                          Supprime
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ) }
