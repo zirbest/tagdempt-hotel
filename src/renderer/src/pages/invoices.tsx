@@ -33,12 +33,12 @@ import { cn } from '~/lib/utils'
 
 const HINTS = { d: 'date', n: 'N Facture', m: 'Montant', dp: 'Date Paiment', paye: '!paye' }
 
-const getInvoice = cache(async (search) => {
+const getInvoices = cache(async (search) => {
   return await window.electron.ipcRenderer.invoke('invoices-read', search)
 }, 'invoices')
 
 export function loadInvoice({ location }) {
-  void getInvoice(location.query.search)
+  void getInvoices(location.query.search)
 }
 
 const getServices = cache(async () => {
@@ -46,7 +46,7 @@ const getServices = cache(async () => {
 }, 'invoices')
 
 function Invoices(props) {
-  const invoices = createAsync(() => getInvoice(props.location.query.search))
+  const invoices = createAsync(() => getInvoices(props.location.query.search))
   const services = createAsync(() => getServices())
 
   const [invoiceForm, { Form, Field, FieldArray }] = createForm<InvoiceForm>({
@@ -158,7 +158,7 @@ function Invoices(props) {
                               response.then(() => {
                                 reset(invoiceForm)
                                 setEmptyState()
-                                revalidate(getInvoice.key)
+                                revalidate(getInvoices.key)
 
                                 showToast({
                                   description: 'opération réussie',
@@ -204,7 +204,7 @@ function Invoices(props) {
                 response.then(() => {
                   reset(invoiceForm)
                   setEmptyState()
-                  revalidate(getInvoice.key)
+                  revalidate(getInvoices.key)
 
                   showToast({
                     description: 'Enregistré avec succès',
