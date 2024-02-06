@@ -104,7 +104,6 @@ ipcMain.handle('invoice-create', async (_, req) => {
 
 ipcMain.handle('invoice-update', async (_, req) => {
   const { id, invoicesToServices: invoicesToServicesReq, ...invoiceReq } = JSON.parse(req)
-  console.log(JSON.parse(req))
 
   const res = await db.update(invoices).set({
     ...invoiceReq,

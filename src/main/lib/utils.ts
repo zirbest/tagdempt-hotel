@@ -12,8 +12,6 @@ async function initUser() {
     count: sql`count(*)`,
   }).from(users).get()
 
-  console.log('users', user?.count)
-
   if (user?.count === 0) {
     await db.insert(users).values({
       username: 'admin',
@@ -37,6 +35,5 @@ export function searchStrToObj(str: string = ''): Record<string, string> {
       object.q = key
   }
 
-  console.log('searchStrToObj: ', object)
   return object
 }
