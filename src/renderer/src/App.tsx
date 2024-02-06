@@ -11,7 +11,7 @@ function rootLayout(props) {
   return (
     <AuthProvider>
       {props.children}
-      <Toaster />
+      <Toaster class="print:hidden" />
     </AuthProvider>
   )
 }
