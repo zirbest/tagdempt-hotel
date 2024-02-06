@@ -6,7 +6,7 @@ import icon from '../../resources/icon.png?asset'
 import { db } from './db'
 import { invoices, invoicesToServices, services, users } from './db/schema'
 import { appInit, searchStrToObj } from './lib/utils'
-import type { InvoiceToServiceForm } from './lib/types'
+import type { Auth } from './lib/types'
 
 function createWindow(): void {
   // Create the browser window.
@@ -238,19 +238,4 @@ ipcMain.handle('login', async (_, credential: { username: string, password: stri
 
 ipcMain.handle('logout', async (_) => {
   auth = null
-})
-
-ipcMain.handle('test', async (_, search) => {
-  // search = searchStrToObj(search)
-
-  const result = db.query.invoices.findMany({
-    with: {
-      invoicesToServices: {
-        with: {
-          service: true,
-        },
-      },
-    },
-  })
-  return result
 })

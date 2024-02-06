@@ -1,6 +1,6 @@
 import type * as v from 'valibot'
 import type { invoices, invoicesToServices, services, users } from '../db/schema'
-import type { InvoiceSchema, ServiceSchema } from '~/lib/validations'
+import type { InvoiceSchema, ServiceSchema } from '../../renderer/src/lib/validations'
 
 export type User = typeof users.$inferInsert
 export type Invoice = typeof invoices.$inferInsert

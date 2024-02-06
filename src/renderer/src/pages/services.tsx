@@ -73,7 +73,7 @@ function Services(props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <Show when={services?.()?.length > 0} fallback={<NoItems />}>
+            <Show when={services()} fallback={<NoItems />}>
               <For each={services()}>
                 { it => (
                   <TableRow onClick={() => {

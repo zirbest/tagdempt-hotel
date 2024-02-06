@@ -1,13 +1,11 @@
 import { useSearchParams } from '@solidjs/router'
-import { As } from '@kobalte/core'
 import type { JSXElement } from 'solid-js'
-import { For, Index, Show } from 'solid-js'
+import { Index, Show } from 'solid-js'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
-import { Button } from './ui/button'
 import { Input } from '@/components/ui/input'
 import MingcuteInformationFill from '~icons/mingcute/information-fill'
 
-export default function Header(props: { children: JSXElement, hints: object }) {
+export default function Header(props: { children: JSXElement, hints?: object }) {
   const [searchParams, setSearchParams] = useSearchParams()
 
   return (
@@ -24,14 +22,14 @@ export default function Header(props: { children: JSXElement, hints: object }) {
             </TooltipTrigger>
             <TooltipContent>
               <ul>
-                <Index each={Object.keys(props.hints)}>
+                <Index each={Object.keys(props.hints || {})}>
                   { i => (
                     <li class="grid grid-cols-[1fr,2fr]">
                       <b>
                         {i()}
                         : &nbsp
                       </b>
-                      {props.hints[i()]}
+                      {props?.hints?.[i()]}
                     </li>
                   )}
                 </Index>
