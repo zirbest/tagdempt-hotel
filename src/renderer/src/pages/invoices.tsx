@@ -305,7 +305,7 @@ function Invoices(props) {
               >
                 {(field, _props) => (
                   <>
-                    <div class="pt-5 pb-2">
+                    <div class="mt-5 rounded-lg p-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
                       <Switch
                         class="flex gap-4 items-center justify-between"
                         checked={field.value === 'paid'}
