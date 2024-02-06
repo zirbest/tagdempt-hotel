@@ -8,8 +8,10 @@ import * as schema from './schema'
 const dbFolder = app?.isPackaged
   ? app.getPath('userData')
   : '.'
-const client = new Database(`${dbFolder}/drizzle.db`)
-// const client = new Database(':memory:');
+
+// const client = new Database(`${dbFolder}/drizzle.db`)
+const client = new Database(app?.isPackaged ? ':memory:' : dbFolder)
+
 export const db = drizzle(client, { schema, logger: !app?.isPackaged })
 
 export async function dbMigration() {
