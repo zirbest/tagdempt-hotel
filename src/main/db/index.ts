@@ -10,7 +10,7 @@ const dbFolder = app?.isPackaged
   : '.'
 
 // const client = new Database(`${dbFolder}/drizzle.db`)
-const client = new Database(app?.isPackaged ? ':memory:' : dbFolder)
+const client = new Database(app?.isPackaged ? ':memory:' : `${dbFolder}/drizzle.db`)
 
 export const db = drizzle(client, { schema, logger: !app?.isPackaged })
 
