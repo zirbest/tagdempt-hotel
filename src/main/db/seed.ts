@@ -1,7 +1,7 @@
 import { exec } from 'child_process'
 import { fakerFR as faker } from '@faker-js/faker'
 import { format } from 'date-fns'
-import type { Invoice, Service, User } from './schema'
+import type { Invoice, Service, User } from '../lib/types'
 import { invoices, services, users } from './schema'
 import { db } from '.'
 
@@ -27,6 +27,7 @@ function invoiceFaker(items = 10) {
   while (i < items) {
     invoices.push({
       number: faker.number.int({ min: 1, max: 999 }),
+      organization: faker.company.catchPhraseDescriptor(),
       date: format(faker.date.past(), 'yyyy-dd-MM').toString(),
       amount: faker.number.float({ min: 10, max: 100, precision: 0.001 }),
       paymentStatus: 'unpaid',
