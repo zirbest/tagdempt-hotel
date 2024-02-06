@@ -6,6 +6,7 @@ import * as v from 'valibot'
 import { format } from 'date-fns'
 import { As } from '@kobalte/core'
 import { NoItems } from './services'
+import MingcuteDelete2Fill from '~icons/mingcute/delete-2-fill'
 import MingcutePrintFill from '~icons/mingcute/print-fill'
 import MingcuteAddFill from '~icons/mingcute/add-line'
 import MingcuteMore1Fill from '~icons/mingcute/more-1-line'
@@ -176,6 +177,7 @@ function Invoices(props) {
                               })
                             }}
                           >
+                            <MingcuteDelete2Fill class="mr-2 size-4" />
                             Supprime
                           </DropdownMenuItem>
                         </DropdownMenuContent>

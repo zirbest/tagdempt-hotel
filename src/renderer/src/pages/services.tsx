@@ -2,6 +2,8 @@ import { cache, createAsync, revalidate } from '@solidjs/router'
 import { For, Show, createSignal } from 'solid-js'
 import type { Service, ServiceForm } from 'src/main/lib/types'
 import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
+import { As } from '@kobalte/core'
+import MingcuteDelete2Fill from '~icons/mingcute/delete-2-fill'
 import MingcuteAddLine from '~icons/mingcute/add-line'
 import { ServiceSchema } from '~/lib/validations'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
@@ -26,7 +28,6 @@ import {
 import { Button } from '~/components/ui/button'
 import Header from '~/components/Header'
 import { showToast } from '~/components/ui/toast'
-import { As } from '@kobalte/core'
 
 const getServices = cache(async (search) => {
   return await window.electron.ipcRenderer.invoke('services-read', search)
@@ -111,6 +112,7 @@ function Services(props) {
                               })
                             }}
                           >
+                            <MingcuteDelete2Fill class="mr-2 size-4" />
                             Supprime
                           </DropdownMenuItem>
                         </DropdownMenuContent>
