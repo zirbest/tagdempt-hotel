@@ -3,12 +3,12 @@ import { db, dbMigration } from '../db'
 import { users } from '../db/schema'
 
 export async function appInit() {
-  dbMigration()
+  await dbMigration()
   await initUser()
 }
 
 async function initUser() {
-  const user = db.select({
+  const user = await db.select({
     count: sql`count(*)`,
   }).from(users).get()
 
