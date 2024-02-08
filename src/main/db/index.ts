@@ -1,16 +1,15 @@
 import { resolve } from 'path'
 import { app } from 'electron'
-import { drizzle } from 'drizzle-orm/better-sqlite3'
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
-import Database from 'better-sqlite3'
+import { drizzle } from 'drizzle-orm/libsql'
+import { migrate } from 'drizzle-orm/libsql/migrator'
+import { createClient } from '@libsql/client'
 import * as schema from './schema'
 
 const dbFolder = app?.isPackaged
   ? app.getPath('userData')
   : '.'
 
-// const client = new Database(`${dbFolder}/drizzle.db`)
-const client = new Database(app?.isPackaged ? ':memory:' : `${dbFolder}/drizzle.db`)
+const client = createClient({ url: `file:${dbFolder}/drizzle.db` })
 
 export const db = drizzle(client, { schema, logger: !app?.isPackaged })
 
@@ -19,5 +18,5 @@ export async function dbMigration() {
     ? resolve(app?.getAppPath(), '../app.asar.unpacked/migration')
     : './migration'
 
-  migrate(db, { migrationsFolder })
+  await migrate(db, { migrationsFolder })
 }
