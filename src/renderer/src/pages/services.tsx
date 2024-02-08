@@ -1,6 +1,6 @@
 import { cache, createAsync, revalidate } from '@solidjs/router'
 import { For, Show, createSignal } from 'solid-js'
-import type { Service, ServiceForm } from 'src/main/lib/types'
+import type { ServiceForm } from 'src/main/lib/types'
 import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
 import { As } from '@kobalte/core'
 import MingcuteDelete2Fill from '~icons/mingcute/delete-2-fill'
@@ -38,7 +38,7 @@ export function loadServices({ location }) {
 }
 
 function Services(props) {
-  const services = createAsync<Service[]>(() => getServices(props.location.query.search))
+  const services = createAsync<ServiceForm[]>(() => getServices(props.location.query.search))
   const [isSheetOpen, setIsSheetOpen] = createSignal(false)
 
   const [serviceForm, { Form, Field }] = createForm<ServiceForm>({
@@ -73,7 +73,7 @@ function Services(props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <Show when={services()} fallback={<NoItems />}>
+            <Show when={(services() || []).length > 0} fallback={<NoItems />}>
               <For each={services()}>
                 { it => (
                   <TableRow onClick={() => {

@@ -51,8 +51,8 @@ const getServices = cache(async () => {
 }, 'invoices')
 
 function Invoices(props) {
-  const invoices = createAsync(() => getInvoices(props.location.query.search))
-  const services = createAsync(() => getServices())
+  const invoices = createAsync<InvoiceForm[]>(() => getInvoices(props.location.query.search))
+  const services = createAsync<ServiceForm[]>(() => getServices())
 
   const [invoiceForm, { Form, Field, FieldArray }] = createForm<InvoiceForm>({
     validate: valiForm(InvoiceSchema),
@@ -106,22 +106,22 @@ function Invoices(props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <Show when={invoices?.()?.length > 0} fallback={<NoItems />}>
+            <Show when={(invoices() || []).length > 0} fallback={<NoItems />}>
               <For each={invoices()}>
                 { it => (
                   <TableRow onClick={() => {
                     setIsSheetOpen(true)
-                    const { invoicesToServices: a, ...rest } = it
+                    const { invoicesToServices, ...rest } = it
 
-                    const stuck: any = []
+                    const stuck: Array<any> = []
                     for (const it of services() || []) {
-                      const res = a?.some((i: InvoiceToServiceForm) => i.serviceId === it.id)
+                      const res = invoicesToServices?.some((i) => i.serviceId === it.id)
                       !res && stuck.push({ serviceId: it.id, amount: '' })
                     }
 
                     let defaultValues: any = v.safeParse(InvoiceSchema, {
                       ...rest,
-                      invoicesToServices: [...a, ...stuck],
+                      invoicesToServices: [...(invoicesToServices ? invoicesToServices : []), ...stuck],
                     }).output
 
                     defaultValues.invoicesToServices?.sort((a: InvoiceToServiceForm, b: InvoiceToServiceForm) => b.serviceId - a.serviceId)
@@ -359,7 +359,7 @@ function Invoices(props) {
                 )}
               </Field>
 
-              <Show when={services?.().length > 0}>
+              <Show when={(services() || []).length > 0}>
                 <p class="text-md font-semibold pt-3">
                   Autres Servisses
                 </p>
