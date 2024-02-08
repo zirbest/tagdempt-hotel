@@ -83,6 +83,12 @@ appInit()
 ipcMain.handle('invoice-create', async (_, req) => {
   const { invoicesToServices: invoicesToServicesReq, ...invoiceReq } = JSON.parse(req)
 
+  const rowCount = await db.select({ count: sql<number>`count()` }).from(invoices).get()
+
+  console.log(rowCount)
+  if (rowCount && rowCount?.count > 10)
+    return
+
   const res = await db.insert(invoices).values({
     ...invoiceReq,
     updatedAt: sql`CURRENT_TIMESTAMP`,
