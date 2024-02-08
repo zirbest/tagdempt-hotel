@@ -85,7 +85,7 @@ ipcMain.handle('invoice-create', async (_, req) => {
 
   const rowCount = await db.select({ count: sql<number>`count()` }).from(invoices).get()
 
-  console.log(rowCount)
+  // TODO: remove it
   if (rowCount && rowCount?.count > 10)
     return
 
