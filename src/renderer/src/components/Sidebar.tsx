@@ -1,8 +1,10 @@
 import { createSignal } from 'solid-js'
 import { A, useNavigate } from '@solidjs/router'
+import { AboutUs } from './AboutUs'
 import { cn } from '@/lib/utils'
 import MingcuteDocument2Fill from '~icons/mingcute/document-2-fill'
 import MingcuteDocumentsFill from '~icons/mingcute/documents-fill'
+import MingcuteMailFill from '~icons/mingcute/mail-fill'
 
 import {
   DropdownMenu,
@@ -53,6 +55,13 @@ export default function Sidebar(props) {
           </div>
         </div>
       </div>
+
+      <AboutUs>
+        <div class="flex items-center pl-[33px] pb-2 overflow-hidden">
+          <MingcuteMailFill class="size-4 mr-2" />
+          <span>About Us</span>
+        </div>
+      </AboutUs>
 
       <div class="px-3 py-2 mb-4 overflow-hidden">
         <DropdownMenu sameWidth>
