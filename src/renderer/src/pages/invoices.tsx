@@ -1,7 +1,7 @@
 import { cache, createAsync, revalidate } from '@solidjs/router'
 import { For, Show, createSignal } from 'solid-js'
-import type { InvoiceForm, InvoiceToServiceForm, ServiceForm } from 'src/main/lib/types'
-import { createForm, getValue, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
+import type { InvoiceForm, InvoiceToServiceForm, OrganizationForm, ServiceForm } from 'src/main/lib/types'
+import { createForm, getValue, getValues, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
 import * as v from 'valibot'
 import { format } from 'date-fns'
 import { As } from '@kobalte/core'
@@ -35,6 +35,14 @@ import { InvoiceSchema } from '~/lib/validations'
 import { showToast } from '~/components/ui/toast'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 import { cn } from '~/lib/utils'
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxHiddenSelect,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxTrigger,
+} from '@/components/ui/combobox'
 
 const HINTS = { d: 'date', n: 'N Facture', m: 'Montant', dp: 'Date Paiment', paye: '!paye' }
 
@@ -50,9 +58,14 @@ const getServices = cache(async () => {
   return await window.electron.ipcRenderer.invoke('services-read')
 }, 'invoices')
 
+const getOrganizations = cache(async () => {
+  return await window.electron.ipcRenderer.invoke('organizations-read')
+}, 'organizations')
+
 function Invoices(props) {
   const invoices = createAsync<InvoiceForm[]>(() => getInvoices(props.location.query.search))
   const services = createAsync<ServiceForm[]>(() => getServices())
+  const organizations = createAsync<OrganizationForm[]>(() => getOrganizations())
 
   const [invoiceForm, { Form, Field, FieldArray }] = createForm<InvoiceForm>({
     validate: valiForm(InvoiceSchema),
@@ -96,8 +109,8 @@ function Invoices(props) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>#</TableHead>
               <TableHead>Organisme</TableHead>
+              <TableHead>#</TableHead>
               <TableHead>Date</TableHead>
               <TableHead class="text-right">Montant</TableHead>
               <TableHead class="text-center">Date Paiment</TableHead>
@@ -115,13 +128,13 @@ function Invoices(props) {
 
                     const stuck: Array<any> = []
                     for (const it of services() || []) {
-                      const res = invoicesToServices?.some((i) => i.serviceId === it.id)
+                      const res = invoicesToServices?.some(i => i.serviceId === it.id)
                       !res && stuck.push({ serviceId: it.id, amount: '' })
                     }
 
                     let defaultValues: any = v.safeParse(InvoiceSchema, {
                       ...rest,
-                      invoicesToServices: [...(invoicesToServices ? invoicesToServices : []), ...stuck],
+                      invoicesToServices: [...(invoicesToServices || []), ...stuck],
                     }).output
 
                     defaultValues.invoicesToServices?.sort((a: InvoiceToServiceForm, b: InvoiceToServiceForm) => b.serviceId - a.serviceId)
@@ -129,11 +142,11 @@ function Invoices(props) {
                     defaultValues = { invoicesToServices: [] }
                   }}
                   >
+                    <TableCell>
+                      { it.organization?.name }
+                    </TableCell>
                     <TableCell class="tabular-nums">
                       { it.number }
-                    </TableCell>
-                    <TableCell>
-                      { it.organization }
                     </TableCell>
                     <TableCell class="tabular-nums">
                       { format(new Date(it.date), 'dd-MM-yyyy') }
@@ -259,20 +272,42 @@ function Invoices(props) {
                 )}
               </Field>
               <Field
-                name="organization"
+                name="organizationId"
               >
                 {(field, props) => (
-                  <>
-                    <Input
-                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
-                      {...props}
-                      type="text"
-                      value={field.value || ''}
+                  <div>
+                    <Combobox
+                      options={organizations() || []}
+                      defaultValue={
+                        organizations()?.find(v => v.id && v?.id.toString() === field.value)
+                      }
+                      optionValue="id"
+                      optionLabel="name"
+                      optionTextValue="name"
                       placeholder="Organisme"
-                    />
-                  </>
+                      itemComponent={props => (
+                        <ComboboxItem
+                          item={props.item}
+                        >
+                          {props.item.rawValue.name}
+                        </ComboboxItem>
+                      )}
+                    >
+                      <ComboboxHiddenSelect
+                        {...props}
+                        value={field.value || ''}
+                      />
+                      <ComboboxTrigger
+                        class={field.error && 'border-error-foreground focus-visible:ring-error'}
+                      >
+                        <ComboboxInput />
+                      </ComboboxTrigger>
+                      <ComboboxContent />
+                    </Combobox>
+                  </div>
                 )}
               </Field>
+
               <Field
                 name="date"
               >
@@ -407,13 +442,13 @@ function Invoices(props) {
               class="mt-4"
               type="submit"
               form="invoiceForm"
+              onMouseOver={() => console.log(getValues(invoiceForm))}
             >
               Enregistrer
             </Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>
-
     </div>
   )
 }
