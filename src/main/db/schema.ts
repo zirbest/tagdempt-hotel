@@ -18,7 +18,7 @@ export const users = sqliteTable('users', {
 
 export const invoices = sqliteTable('invoices', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  organization: text('organization').notNull(),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
   number: integer('number').notNull(),
   date: numeric('date').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
   amount: real('amount').notNull(),
@@ -42,6 +42,16 @@ export const services = sqliteTable('services', {
   updatedAt: numeric('updated_at').notNull(),
 })
 
+export const organizations = sqliteTable('organizations', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').unique().notNull(),
+  phone: text('phone'),
+  email: text('email'),
+
+  createdAt: numeric('created_at').default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  updatedAt: numeric('updated_at').notNull(),
+})
+
 export const invoicesToServices = sqliteTable('invoices_to_services', {
   invoiceId: integer('invoice_id').notNull().references(() => invoices.id, { onDelete: 'cascade' }),
   serviceId: integer('service_id').notNull().references(() => services.id, { onDelete: 'cascade' }),
@@ -55,12 +65,20 @@ export const invoicesToServices = sqliteTable('invoices_to_services', {
   }
 })
 
-export const invoicesRelations = relations(invoices, ({ many }) => ({
+export const invoicesRelations = relations(invoices, ({ many, one }) => ({
   invoicesToServices: many(invoicesToServices),
+  organization: one(organizations, {
+    fields: [invoices.organizationId],
+    references: [organizations.id],
+  }),
 }))
 
 export const servicesRelations = relations(services, ({ many }) => ({
   invoicesToServices: many(invoicesToServices),
+}))
+
+export const organizationsRelations = relations(organizations, ({ many }) => ({
+  invoices: many(invoices),
 }))
 
 export const invoicesToServicesRelations = relations(invoicesToServices, ({ one }) => ({

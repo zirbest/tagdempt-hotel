@@ -4,6 +4,7 @@ import { AboutUs } from './AboutUs'
 import { cn } from '@/lib/utils'
 import MingcuteDocument2Fill from '~icons/mingcute/document-2-fill'
 import MingcuteDocumentsFill from '~icons/mingcute/documents-fill'
+import MingcuteGroup3Fill from '~icons/mingcute/group-3-fill'
 import MingcuteMailFill from '~icons/mingcute/mail-fill'
 
 import {
@@ -50,6 +51,10 @@ export default function Sidebar(props) {
               <NavLink href="/services">
                 <MingcuteDocumentsFill class="mr-2 h-4 w-4" />
                 Services
+              </NavLink>
+              <NavLink href="/organizations">
+                <MingcuteGroup3Fill class="mr-2 h-4 w-4" />
+                Organisme
               </NavLink>
             </div>
           </div>

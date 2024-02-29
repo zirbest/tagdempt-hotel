@@ -1,5 +1,14 @@
 import * as v from 'valibot'
 
+export const OrganizationSchema = v.object({
+  id: v.optional(v.string()),
+  name: v.string([
+    v.minLength(3),
+  ]),
+  phone: v.union([v.optional(v.string([v.minLength(9)])), v.literal(''), v.null_()]),
+  email: v.union([v.string([v.email()]), v.literal(''), v.null_()]),
+})
+
 export const ServiceSchema = v.object({
   id: v.optional(v.string()),
   name: v.string([

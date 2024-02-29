@@ -1,10 +1,10 @@
 import { join } from 'path'
 import { BrowserWindow, app, ipcMain, shell } from 'electron'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { and, desc, eq, sql } from 'drizzle-orm'
+import { and, desc, eq, like, sql } from 'drizzle-orm'
 import icon from '../../resources/icon.png?asset'
 import { db } from './db'
-import { invoices, invoicesToServices, services, users } from './db/schema'
+import { invoices, invoicesToServices, organizations, services, users } from './db/schema'
 import { appInit, searchStrToObj } from './lib/utils'
 import type { Auth } from './lib/types'
 
@@ -144,10 +144,16 @@ ipcMain.handle('invoice-update', async (_, req) => {
 ipcMain.handle('invoices-read', async (_, search) => {
   search = searchStrToObj(search)
 
+  const orgIds = !search.q
+    ? []
+    : (await db.select({ id: organizations.id }).from(organizations)
+        .where(like(organizations.name, `%${search.q}%`)))
+        .map(v => v.id.toString())
+
   const result = await db.query.invoices.findMany({
-    where(fields, { like, and }) {
+    where(fields, { like, and, inArray }) {
       return and(
-        !search.q ? undefined : like(fields.organization, `%${search.q}%`),
+        orgIds.length < 1 ? undefined : inArray(fields.organizationId, orgIds),
         !search.n ? undefined : like(fields.number, `%${search.n}%`),
         !search.d ? undefined : like(fields.date, `%${search.d}%`),
         !search.m ? undefined : like(fields.amount, `%${search.m}%`),
@@ -156,6 +162,7 @@ ipcMain.handle('invoices-read', async (_, search) => {
       )
     },
     with: {
+      organization: true,
       invoicesToServices: {
         with: {
           service: true,
@@ -222,6 +229,52 @@ ipcMain.handle('service-delete', async (_, id) => {
 })
 
 // }}}
+//
+// #### Organizations {{{
+
+ipcMain.handle('organization-create', async (_, req) => {
+  const serviceReq = JSON.parse(req)
+
+  const res = await db.insert(organizations).values({
+    ...serviceReq,
+    updatedAt: sql`CURRENT_TIMESTAMP`,
+  })
+
+  return res
+})
+
+ipcMain.handle('organizations-read', async (_, search) => {
+  search = searchStrToObj(search)
+
+  const result = db.query.organizations.findMany({
+    where(fields, { like, and }) {
+      return and(
+        !search.q ? undefined : like(fields.name, `%${search.q}%`),
+      )
+    },
+    orderBy: [desc(organizations.id)],
+  })
+  return result
+})
+
+ipcMain.handle('organization-update', async (_, req) => {
+  const { id, ...bodyReq } = JSON.parse(req)
+
+  const res = await db.update(organizations).set({
+    ...bodyReq,
+    updatedAt: sql`CURRENT_TIMESTAMP`,
+  },
+  ).where(eq(organizations.id, id))
+
+  return res
+})
+
+ipcMain.handle('organization-delete', async (_, id) => {
+  const result = await db.delete(organizations).where(eq(organizations.id, id))
+  return result
+})
+
+/// }}}
 
 ipcMain.handle('login', async (_, credential: { username: string, password: string }) => {
   if (!auth && credential?.username && credential?.password) {

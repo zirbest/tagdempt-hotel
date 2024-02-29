@@ -6,6 +6,7 @@ import Layout from './pages/default.layout'
 import Invoices, { loadInvoice } from './pages/invoices'
 import Services, { loadServices } from './pages/services'
 import { Toaster } from './components/ui/toast'
+import Organizations, { loadOrganizations } from './pages/organization'
 
 function rootLayout(props) {
   return (
@@ -22,6 +23,7 @@ const App: Component = () => {
       <Route path="/" component={Layout}>
         <Route path="/" load={loadInvoice} component={Invoices} />
         <Route path="/services" load={loadServices} component={Services} />
+        <Route path="/organizations" load={loadOrganizations} component={Organizations} />
       </Route>
       <Route path="/login" component={Login} />
     </Router>
