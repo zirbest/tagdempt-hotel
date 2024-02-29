@@ -134,8 +134,8 @@ function Services(props) {
               class="space-y-2"
               onSubmit={(v, _e) => {
                 const response = v.id
-                  ? window.electron.ipcRenderer.invoke('service-update', JSON.stringify(v))
-                  : window.electron.ipcRenderer.invoke('service-create', JSON.stringify(v))
+                  ? window.electron.ipcRenderer.invoke('service-update', v)
+                  : window.electron.ipcRenderer.invoke('service-create', v)
 
                 response.then(() => {
                   reset(serviceForm)

@@ -99,7 +99,7 @@ function Organizations(props) {
                         <DropdownMenuContent>
                           <DropdownMenuItem
                             onSelect={() => {
-                              const response = window.electron.ipcRenderer.invoke('organization-delete', JSON.stringify(it.id))
+                              const response = window.electron.ipcRenderer.invoke('organization-delete', it.id)
                               response.then(() => {
                                 reset(organizationForm)
                                 revalidate(getOrganizations.key)
@@ -142,8 +142,8 @@ function Organizations(props) {
               class="space-y-2"
               onSubmit={(v, _e) => {
                 const response = v.id
-                  ? window.electron.ipcRenderer.invoke('organization-update', JSON.stringify(v))
-                  : window.electron.ipcRenderer.invoke('organization-create', JSON.stringify(v))
+                  ? window.electron.ipcRenderer.invoke('organization-update', v)
+                  : window.electron.ipcRenderer.invoke('organization-create', v)
 
                 response.then(() => {
                   reset(organizationForm)

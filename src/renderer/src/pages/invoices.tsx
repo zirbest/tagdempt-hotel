@@ -208,8 +208,8 @@ function Invoices(props) {
               class="space-y-2"
               onSubmit={(v, _e) => {
                 const response = v.id
-                  ? window.electron.ipcRenderer.invoke('invoice-update', JSON.stringify(v))
-                  : window.electron.ipcRenderer.invoke('invoice-create', JSON.stringify(v))
+                  ? window.electron.ipcRenderer.invoke('invoice-update', v)
+                  : window.electron.ipcRenderer.invoke('invoice-create', v)
 
                 response.then(() => {
                   reset(invoiceForm)

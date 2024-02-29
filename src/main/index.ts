@@ -81,7 +81,7 @@ appInit()
 // #### Invoices {{{
 
 ipcMain.handle('invoice-create', async (_, req) => {
-  const { invoicesToServices: invoicesToServicesReq, ...invoiceReq } = JSON.parse(req)
+  const { invoicesToServices: invoicesToServicesReq, ...invoiceReq } = req
 
   const rowCount = await db.select({ count: sql<number>`count()` }).from(invoices).get()
 
@@ -109,7 +109,7 @@ ipcMain.handle('invoice-create', async (_, req) => {
 })
 
 ipcMain.handle('invoice-update', async (_, req) => {
-  const { id, invoicesToServices: invoicesToServicesReq, ...invoiceReq } = JSON.parse(req)
+  const { id, invoicesToServices: invoicesToServicesReq, ...invoiceReq } = req
 
   const res = await db.update(invoices).set({
     ...invoiceReq,
@@ -187,7 +187,7 @@ ipcMain.handle('invoice-delete', async (_, id) => {
 // #### Services {{{
 
 ipcMain.handle('service-create', async (_, req) => {
-  const serviceReq = JSON.parse(req)
+  const serviceReq = req
 
   const res = await db.insert(services).values({
     ...serviceReq,
@@ -212,7 +212,7 @@ ipcMain.handle('services-read', async (_, search) => {
 })
 
 ipcMain.handle('service-update', async (_, req) => {
-  const { id, ...serviceReq } = JSON.parse(req)
+  const { id, ...serviceReq } = req
 
   const res = await db.update(services).set({
     description: '',
@@ -234,7 +234,9 @@ ipcMain.handle('service-delete', async (_, id) => {
 // #### Organizations {{{
 
 ipcMain.handle('organization-create', async (_, req) => {
-  const serviceReq = JSON.parse(req)
+  const serviceReq = req
+
+  console.log('--', req)
 
   const res = await db.insert(organizations).values({
     ...serviceReq,
@@ -259,7 +261,7 @@ ipcMain.handle('organizations-read', async (_, search) => {
 })
 
 ipcMain.handle('organization-update', async (_, req) => {
-  const { id, ...bodyReq } = JSON.parse(req)
+  const { id, ...bodyReq } = req
 
   const res = await db.update(organizations).set({
     email: '',
