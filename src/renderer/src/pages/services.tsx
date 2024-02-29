@@ -29,6 +29,7 @@ import {
 import { Button } from '~/components/ui/button'
 import Header from '~/components/Header'
 import { showToast } from '~/components/ui/toast'
+import { TableNoItems } from '~/components/TableNoItems'
 
 function Services(props) {
   const services = createAsync<ServiceForm[]>(() => getServices(props.location.query.search))
@@ -65,7 +66,7 @@ function Services(props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <Show when={(services() || []).length > 0} fallback={<NoItems />}>
+            <Show when={(services() || []).length > 0} fallback={<TableNoItems />}>
               <For each={services()}>
                 { it => (
                   <TableRow onClick={() => {
@@ -208,16 +209,3 @@ function Services(props) {
 }
 
 export default Services
-
-export function NoItems() {
-  return (
-    <TableRow>
-      <TableCell
-        class="p-9 text-center"
-        colspan="100%"
-      >
-        Aucun élément
-      </TableCell>
-    </TableRow>
-  )
-}

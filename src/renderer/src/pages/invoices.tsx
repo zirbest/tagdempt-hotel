@@ -5,7 +5,6 @@ import { createForm, getValue, getValues, reset, setValue, setValues, valiForm }
 import * as v from 'valibot'
 import { format } from 'date-fns'
 import { As } from '@kobalte/core'
-import { NoItems } from './services'
 import { getInvoices, getOrganizations, getServices } from './route.data'
 import MingcuteDelete2Fill from '~icons/mingcute/delete-2-fill'
 import MingcutePrintFill from '~icons/mingcute/print-fill'
@@ -44,6 +43,7 @@ import {
   ComboboxItem,
   ComboboxTrigger,
 } from '@/components/ui/combobox'
+import { TableNoItems } from '~/components/TableNoItems'
 
 const HINTS = { d: 'date', n: 'N Facture', m: 'Montant', dp: 'Date Paiment', paye: '!paye' }
 
@@ -104,7 +104,7 @@ function Invoices(props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <Show when={(invoices() || []).length > 0} fallback={<NoItems />}>
+            <Show when={(invoices() || []).length > 0} fallback={<TableNoItems />}>
               <For each={invoices()}>
                 { it => (
                   <TableRow onClick={() => {

@@ -3,7 +3,6 @@ import { For, Show, createSignal } from 'solid-js'
 import type { OrganizationForm } from 'src/main/lib/types'
 import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
 import { As } from '@kobalte/core'
-import { NoItems } from './services'
 import { getOrganizations } from './route.data'
 import MingcuteDelete2Fill from '~icons/mingcute/delete-2-fill'
 import MingcuteAddLine from '~icons/mingcute/add-line'
@@ -30,6 +29,7 @@ import {
 import { Button } from '~/components/ui/button'
 import Header from '~/components/Header'
 import { showToast } from '~/components/ui/toast'
+import { TableNoItems } from '~/components/TableNoItems'
 
 export function loadOrganizations({ location }) {
   void getOrganizations(location.query.search)
@@ -71,7 +71,7 @@ function Organizations(props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <Show when={(organizations() || []).length > 0} fallback={<NoItems />}>
+            <Show when={(organizations() || []).length > 0} fallback={<TableNoItems />}>
               <For each={organizations()}>
                 { it => (
                   <TableRow onClick={() => {
