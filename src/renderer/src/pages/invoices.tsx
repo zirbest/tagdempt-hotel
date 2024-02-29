@@ -1,4 +1,4 @@
-import { cache, createAsync, revalidate } from '@solidjs/router'
+import { createAsync, revalidate } from '@solidjs/router'
 import { For, Show, createSignal } from 'solid-js'
 import type { InvoiceForm, InvoiceToServiceForm, OrganizationForm, ServiceForm } from 'src/main/lib/types'
 import { createForm, getValue, getValues, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
@@ -6,6 +6,7 @@ import * as v from 'valibot'
 import { format } from 'date-fns'
 import { As } from '@kobalte/core'
 import { NoItems } from './services'
+import { getInvoices, getOrganizations, getServices } from './route.data'
 import MingcuteDelete2Fill from '~icons/mingcute/delete-2-fill'
 import MingcutePrintFill from '~icons/mingcute/print-fill'
 import MingcuteAddFill from '~icons/mingcute/add-line'
@@ -45,22 +46,6 @@ import {
 } from '@/components/ui/combobox'
 
 const HINTS = { d: 'date', n: 'N Facture', m: 'Montant', dp: 'Date Paiment', paye: '!paye' }
-
-const getInvoices = cache(async (search) => {
-  return await window.electron.ipcRenderer.invoke('invoices-read', search)
-}, 'invoices')
-
-export function loadInvoice({ location }) {
-  void getInvoices(location.query.search)
-}
-
-const getServices = cache(async () => {
-  return await window.electron.ipcRenderer.invoke('services-read')
-}, 'invoices')
-
-const getOrganizations = cache(async () => {
-  return await window.electron.ipcRenderer.invoke('organizations-read')
-}, 'organizations')
 
 function Invoices(props) {
   const invoices = createAsync<InvoiceForm[]>(() => getInvoices(props.location.query.search))

@@ -3,10 +3,11 @@ import { Route, HashRouter as Router } from '@solidjs/router'
 import { AuthProvider } from './composables/auth'
 import Login from './pages/login'
 import Layout from './pages/default.layout'
-import Invoices, { loadInvoice } from './pages/invoices'
-import Services, { loadServices } from './pages/services'
 import { Toaster } from './components/ui/toast'
 import Organizations, { loadOrganizations } from './pages/organization'
+import { loadInvoice, loadServices } from './pages/route.data'
+import Invoices from './pages/invoices'
+import Services from './pages/services'
 
 function rootLayout(props) {
   return (

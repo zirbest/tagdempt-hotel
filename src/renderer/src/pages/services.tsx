@@ -3,6 +3,7 @@ import { For, Show, createSignal } from 'solid-js'
 import type { ServiceForm } from 'src/main/lib/types'
 import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
 import { As } from '@kobalte/core'
+import { getServices } from './route.data'
 import MingcuteDelete2Fill from '~icons/mingcute/delete-2-fill'
 import MingcuteAddLine from '~icons/mingcute/add-line'
 import { ServiceSchema } from '~/lib/validations'
@@ -28,14 +29,6 @@ import {
 import { Button } from '~/components/ui/button'
 import Header from '~/components/Header'
 import { showToast } from '~/components/ui/toast'
-
-const getServices = cache(async (search) => {
-  return await window.electron.ipcRenderer.invoke('services-read', search)
-}, 'services')
-
-export function loadServices({ location }) {
-  void getServices(location.query.search)
-}
 
 function Services(props) {
   const services = createAsync<ServiceForm[]>(() => getServices(props.location.query.search))
