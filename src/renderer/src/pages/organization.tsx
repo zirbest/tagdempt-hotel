@@ -1,7 +1,7 @@
 import { createAsync, revalidate } from '@solidjs/router'
 import { For, Show, createSignal } from 'solid-js'
 import type { OrganizationForm } from 'src/main/lib/types'
-import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
+import { createForm, getValue, getValues, reset, setValues, valiForm } from '@modular-forms/solid'
 import { As } from '@kobalte/core'
 import { getOrganizations } from './route.data'
 import MingcuteDelete2Fill from '~icons/mingcute/delete-2-fill'
@@ -221,7 +221,11 @@ function Organizations(props) {
             </Form>
           </div>
           <SheetFooter>
-            <Button class="mt-4" type="submit" form="organizationForm">
+            <Button
+              class="mt-4"
+              type="submit"
+              form="organizationForm"
+            >
               Enregistrer
             </Button>
           </SheetFooter>

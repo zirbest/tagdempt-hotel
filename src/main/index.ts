@@ -215,6 +215,7 @@ ipcMain.handle('service-update', async (_, req) => {
   const { id, ...serviceReq } = JSON.parse(req)
 
   const res = await db.update(services).set({
+    description: '',
     ...serviceReq,
     updatedAt: sql`CURRENT_TIMESTAMP`,
   },
@@ -261,6 +262,8 @@ ipcMain.handle('organization-update', async (_, req) => {
   const { id, ...bodyReq } = JSON.parse(req)
 
   const res = await db.update(organizations).set({
+    email: '',
+    phone: '',
     ...bodyReq,
     updatedAt: sql`CURRENT_TIMESTAMP`,
   },
