@@ -407,7 +407,7 @@ function Invoices(props) {
                                     {...props}
                                     type="text"
                                     value={field.value || ''}
-                                    placeholder={services?.()?.[index()].label}
+                                    placeholder={services?.()?.[index()].name}
                                   />
                                 </>
                               )}

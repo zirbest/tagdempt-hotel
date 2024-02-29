@@ -14,12 +14,7 @@ export const ServiceSchema = v.object({
   name: v.string([
     v.minLength(3),
   ]),
-  label: v.string([
-    v.minLength(3),
-  ]),
-  description: v.string([
-    v.minLength(3),
-  ]),
+  description: v.union([v.optional(v.string([v.minLength(3)])), v.literal(''), v.null_()]),
 })
 
 export const InvoiceSchema = v.object({

@@ -61,7 +61,6 @@ function Services(props) {
           <TableHeader>
             <TableRow>
               <TableHead>Nom</TableHead>
-              <TableHead>Label</TableHead>
               <TableHead>Description</TableHead>
             </TableRow>
           </TableHeader>
@@ -77,9 +76,6 @@ function Services(props) {
                   >
                     <TableCell>
                       { it.name }
-                    </TableCell>
-                    <TableCell>
-                      { it.label }
                     </TableCell>
                     <TableCell>
                       { it.description }
@@ -176,22 +172,6 @@ function Services(props) {
                       type="text"
                       value={field.value || ''}
                       placeholder="Nom"
-                      required
-                    />
-                  </>
-                )}
-              </Field>
-              <Field
-                name="label"
-              >
-                {(field, props) => (
-                  <>
-                    <Input
-                      class={field.error && 'border-error-foreground focus-visible:ring-error'}
-                      {...props}
-                      type="text"
-                      value={field.value || ''}
-                      placeholder="Label"
                       required
                     />
                   </>

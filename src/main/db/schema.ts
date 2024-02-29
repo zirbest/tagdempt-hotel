@@ -33,8 +33,7 @@ export const invoices = sqliteTable('invoices', {
 export const services = sqliteTable('services', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').unique().notNull(),
-  label: text('label').unique().notNull(),
-  description: text('description').notNull(),
+  description: text('description'),
   enabled: integer('enabled').notNull().default(0),
 
   // deletedAt: numeric('deleted_at').notNull(),
