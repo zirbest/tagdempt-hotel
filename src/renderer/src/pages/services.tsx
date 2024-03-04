@@ -1,4 +1,4 @@
-import { cache, createAsync, revalidate } from '@solidjs/router'
+import { createAsync, revalidate } from '@solidjs/router'
 import { For, Show, createSignal } from 'solid-js'
 import type { ServiceForm } from 'src/main/lib/types'
 import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
@@ -68,7 +68,7 @@ function Services(props) {
           <TableBody>
             <Show when={(services() || []).length > 0} fallback={<TableNoItems />}>
               <For each={services()}>
-                { it => (
+                {it => (
                   <TableRow onClick={() => {
                     setIsSheetOpen(true)
                     const { id, ...rest } = it
@@ -76,10 +76,10 @@ function Services(props) {
                   }}
                   >
                     <TableCell>
-                      { it.name }
+                      {it.name}
                     </TableCell>
                     <TableCell>
-                      { it.description }
+                      {it.description}
                     </TableCell>
                     <TableCell class="text-center">
                       <DropdownMenu>
@@ -109,7 +109,7 @@ function Services(props) {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ) }
+                )}
               </For>
             </Show>
           </TableBody>
@@ -120,7 +120,7 @@ function Services(props) {
         <SheetContent class="overflow-auto">
           <SheetHeader>
             <SheetTitle>
-              { getValue(serviceForm, 'id')?.toString() !== '' ? 'mise à jour' : 'creer' }
+              {getValue(serviceForm, 'id')?.toString() !== '' ? 'mise à jour' : 'creer'}
               &nbspune Service
             </SheetTitle>
             <SheetDescription>

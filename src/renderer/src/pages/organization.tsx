@@ -1,7 +1,7 @@
 import { createAsync, revalidate } from '@solidjs/router'
 import { For, Show, createSignal } from 'solid-js'
 import type { OrganizationForm } from 'src/main/lib/types'
-import { createForm, getValue, getValues, reset, setValues, valiForm } from '@modular-forms/solid'
+import { createForm, getValue, reset, setValues, valiForm } from '@modular-forms/solid'
 import { As } from '@kobalte/core'
 import { getOrganizations } from './route.data'
 import MingcuteDelete2Fill from '~icons/mingcute/delete-2-fill'
@@ -73,7 +73,7 @@ function Organizations(props) {
           <TableBody>
             <Show when={(organizations() || []).length > 0} fallback={<TableNoItems />}>
               <For each={organizations()}>
-                { it => (
+                {it => (
                   <TableRow onClick={() => {
                     setIsSheetOpen(true)
                     const { id, ...rest } = it
@@ -81,13 +81,13 @@ function Organizations(props) {
                   }}
                   >
                     <TableCell>
-                      { it.name }
+                      {it.name}
                     </TableCell>
                     <TableCell>
-                      { it.phone }
+                      {it.phone}
                     </TableCell>
                     <TableCell>
-                      { it.email }
+                      {it.email}
                     </TableCell>
                     <TableCell class="text-center">
                       <DropdownMenu>
@@ -117,7 +117,7 @@ function Organizations(props) {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ) }
+                )}
               </For>
             </Show>
           </TableBody>
@@ -128,7 +128,7 @@ function Organizations(props) {
         <SheetContent class="overflow-auto">
           <SheetHeader>
             <SheetTitle>
-              { getValue(organizationForm, 'id')?.toString() !== '' ? 'mise à jour' : 'creer' }
+              {getValue(organizationForm, 'id')?.toString() !== '' ? 'mise à jour' : 'creer'}
               &nbspune Organization
             </SheetTitle>
             <SheetDescription>

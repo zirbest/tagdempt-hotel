@@ -1,7 +1,7 @@
 import { createAsync, revalidate } from '@solidjs/router'
 import { For, Show, createSignal } from 'solid-js'
 import type { InvoiceForm, InvoiceToServiceForm, OrganizationForm, ServiceForm } from 'src/main/lib/types'
-import { createForm, getValue, getValues, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
+import { createForm, getValue, reset, setValue, setValues, valiForm } from '@modular-forms/solid'
 import * as v from 'valibot'
 import { format } from 'date-fns'
 import { As } from '@kobalte/core'
@@ -106,7 +106,7 @@ function Invoices(props) {
           <TableBody>
             <Show when={(invoices() || []).length > 0} fallback={<TableNoItems />}>
               <For each={invoices()}>
-                { it => (
+                {it => (
                   <TableRow onClick={() => {
                     setIsSheetOpen(true)
                     const { invoicesToServices, ...rest } = it
@@ -128,29 +128,29 @@ function Invoices(props) {
                   }}
                   >
                     <TableCell>
-                      { it.organization?.name }
+                      {it.organization?.name}
                     </TableCell>
                     <TableCell class="tabular-nums">
-                      { it.number }
+                      {it.number}
                     </TableCell>
                     <TableCell class="tabular-nums">
-                      { format(new Date(it.date), 'dd-MM-yyyy') }
+                      {format(new Date(it.date), 'dd-MM-yyyy')}
                     </TableCell>
                     <TableCell class="text-right tabular-nums">
-                      { it.amount }
+                      {it.amount}
                     </TableCell>
                     <TableCell class="text-center tabular-nums">
-                      { format(new Date(it.paymentDate), 'dd-MM-yyyy') }
+                      {format(new Date(it.paymentDate), 'dd-MM-yyyy')}
                     </TableCell>
                     <TableCell class="text-center">
-                      { it.paymentType }
+                      {it.paymentType}
                     </TableCell>
                     <TableCell class="text-center">
                       <Badge
                         variant="secondary"
                         class={cn('whitespace-nowrap', it.paymentStatus === 'unpaid' ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900')}
                       >
-                        { it.paymentStatus === 'paid' ? 'paye' : 'non paye' }
+                        {it.paymentStatus === 'paid' ? 'paye' : 'non paye'}
                       </Badge>
                     </TableCell>
                     <TableCell class="text-center print:hidden">
@@ -182,7 +182,7 @@ function Invoices(props) {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ) }
+                )}
               </For>
             </Show>
           </TableBody>
@@ -193,7 +193,7 @@ function Invoices(props) {
         <SheetContent class="overflow-y-scroll">
           <SheetHeader>
             <SheetTitle>
-              { getValue(invoiceForm, 'id')?.toString() !== '' ? 'mise à jour' : 'creer' }
+              {getValue(invoiceForm, 'id')?.toString() !== '' ? 'mise à jour' : 'creer'}
               &nbspune Creance
             </SheetTitle>
             <SheetDescription>
@@ -427,7 +427,6 @@ function Invoices(props) {
               class="mt-4"
               type="submit"
               form="invoiceForm"
-              onMouseOver={() => console.log(getValues(invoiceForm))}
             >
               Enregistrer
             </Button>
