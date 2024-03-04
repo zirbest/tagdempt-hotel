@@ -27,7 +27,7 @@ function invoiceFaker(items = 10) {
   while (i < items) {
     invoices.push({
       number: faker.number.int({ min: 1, max: 999 }),
-      organization: faker.company.catchPhraseDescriptor(),
+      organizationId: '1',
       date: format(faker.date.past(), 'yyyy-dd-MM').toString(),
       amount: faker.number.float({ min: 10, max: 100, precision: 0.001 }),
       paymentStatus: 'unpaid',
@@ -50,7 +50,6 @@ function serviceFaker(items = 4) {
   while (i < items) {
     services.push({
       name: faker.word.sample(),
-      label: faker.word.sample(),
       description: faker.word.words(),
 
       updatedAt: format(faker.date.past(), 'yyyy-MM-dd HH:mm:ss').toString(),
