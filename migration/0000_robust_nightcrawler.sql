@@ -1,6 +1,6 @@
 CREATE TABLE `invoices` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`organization` text NOT NULL,
+	`organization_id` text NOT NULL,
 	`number` integer NOT NULL,
 	`date` numeric DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	`amount` real NOT NULL,
@@ -8,7 +8,8 @@ CREATE TABLE `invoices` (
 	`payment_date` numeric NOT NULL,
 	`payment_type` text NOT NULL,
 	`created_at` numeric DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
-	`updated_at` numeric NOT NULL
+	`updated_at` numeric NOT NULL,
+	FOREIGN KEY (`organization_id`) REFERENCES `organizations`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `invoices_to_services` (
@@ -22,11 +23,19 @@ CREATE TABLE `invoices_to_services` (
 	FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `organizations` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`name` text NOT NULL,
+	`phone` text,
+	`email` text,
+	`created_at` numeric DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
+	`updated_at` numeric NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `services` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`label` text NOT NULL,
-	`description` text NOT NULL,
+	`description` text,
 	`enabled` integer DEFAULT 0 NOT NULL,
 	`created_at` numeric DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	`updated_at` numeric NOT NULL
@@ -39,6 +48,6 @@ CREATE TABLE `users` (
 	`role` text DEFAULT 'user' NOT NULL
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `organizations_name_unique` ON `organizations` (`name`);--> statement-breakpoint
 CREATE UNIQUE INDEX `services_name_unique` ON `services` (`name`);--> statement-breakpoint
-CREATE UNIQUE INDEX `services_label_unique` ON `services` (`label`);--> statement-breakpoint
 CREATE UNIQUE INDEX `users_username_unique` ON `users` (`username`);
